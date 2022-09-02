@@ -1,0 +1,39 @@
+[package]
+name = "dbs-cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dragonball = { git = "https://github.com/kata-containers/kata-containers", branch = "main" }
+hypervisor = { git = "https://github.com/kata-containers/kata-containers", branch = "main" }
+clap = { version = "3.2.14", features = ["derive"] }
+serde = "1.0.27"
+serde_derive = "1.0.27"
+libc = "0.2.39"
+seccompiler = "0.2.0"
+log = "0.4.14"
+kvm-bindings = "0.5.0"
+kvm-ioctls = "0.11.0"
+thiserror = "1"
+nix = "0.24.1"
+anyhow = "1.0.61"
+vmm-sys-util = "0.10.0"
+slog = "2.7.0"
+slog-term = "2.9.0"
+slog-json = "2.6.1"
+slog-scope = "4.4.0"
+
+[patch.'crates-io']
+dbs-device = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-interrupt = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323", features = ["kvm-irq"]  }
+dbs-legacy-devices = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-upcall = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323", optional = true }
+dbs-virtio-devices = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323", optional = true, features = ["virtio-mmio"] }
+dbs-boot = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-arch = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-address-space = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-allocator = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+dbs-utils = { git = "https://github.com/openanolis/dragonball-sandbox.git", rev = "c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323" }
+linux-loader = { git = "https://github.com/rust-vmm/linux-loader.git", tag = "v0.5.0" }
