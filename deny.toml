@@ -222,5 +222,3 @@ allow-git = [
 #gitlab = [""]
 # 1 or more bitbucket.org organizations to allow git sources for
 #bitbucket = [""]
-Footer
-
