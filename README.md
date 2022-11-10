@@ -58,6 +58,22 @@ Create a vsock console (communication with sock file)
   --serial-path "/tmp/dbs" ;
 ```
 
+Create a virtio-vsock tunnel for Guest-to-Host communication.
+
+> When the parameter `vsock` is not given, `dbs-cli` will not add a virtio-vsock device.
+> 
+> Otherwise, `dbs-cli` will create a unix socket on the host using the argument
+> specified with the `--vsock` parameter.
+
+```
+./dbs-cli \
+  --log-file dbs-cli.log --log-level ERROR \
+  --kernel-path ~/path/to/kernel/vmlinux.bin \
+  --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --vsock /tmp/vsock.sock;
+```
+
 # 2. Usage
 
 ## 1. Exit vm

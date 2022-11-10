@@ -170,6 +170,19 @@ pub struct CreateArgs {
         display_order = 2
     )]
     pub serial_path: String,
+
+    // The path to a vsock socket file
+    // FIXME: add more params:
+    // cid="contextid",socket_path="somepath",gid="guest_id"
+    #[clap(
+        short,
+        long,
+        value_parser,
+        default_value = "",
+        help = "Virtio VSOCK socket path",
+        display_order = 2
+    )]
+    pub vsock: String,
 }
 
 /// Config boot source including rootfs file path

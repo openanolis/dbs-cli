@@ -19,7 +19,7 @@ use vmm_sys_util::eventfd::EventFd;
 use dragonball::{
     api::v1::{
         BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmAction, VmmActionError, VmmData,
-        VmmRequest, VmmResponse,
+        VmmRequest, VmmResponse, VsockDeviceConfigInfo,
     },
     vm::{CpuTopology, VmConfigInfo},
 };
@@ -117,6 +117,20 @@ impl CliInstance {
         self.insert_block_device(block_device_config_info)
             .expect("failed to set block device");
 
+        if !args.create_args.vsock.is_empty() {
+            // VSOCK config
+            let mut vsock_config_info = VsockDeviceConfigInfo::default();
+            vsock_config_info = VsockDeviceConfigInfo {
+                guest_cid: 42, // dummy value
+                uds_path: Some(args.create_args.vsock.to_string()),
+                ..vsock_config_info
+            };
+
+            // set vsock
+            self.insert_vsock(vsock_config_info)
+                .expect("failed to set vsock socket path");
+        }
+
         // start micro-vm
         self.instance_start().expect("failed to start micro-vm");
 
@@ -150,6 +164,14 @@ impl CliInstance {
             vm_config.clone(),
         )))
         .with_context(|| format!("Failed to set vm configuration {:?}", vm_config))?;
+        Ok(())
+    }
+
+    pub fn insert_vsock(&self, vsock_cfg: VsockDeviceConfigInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::InsertVsockDevice(
+            vsock_cfg.clone(),
+        )))
+        .with_context(|| format!("Failed to insert vsock device {:?}", vsock_cfg))?;
         Ok(())
     }
 
