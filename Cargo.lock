@@ -2349,13 +2349,3 @@ dependencies = [
  "cc",
  "libc",
 ]
-
-[[patch.unused]]
-name = "dbs-upcall"
-version = "0.1.0"
-source = "git+https://github.com/openanolis/dragonball-sandbox.git?rev=c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323#c3d7831aee7c3962b8a90f0afbfd0fb7e4d30323"
-
-[[patch.unused]]
-name = "linux-loader"
-version = "0.5.0"
-source = "git+https://github.com/rust-vmm/linux-loader.git?tag=v0.5.0#003b7cd7f4a9a151b515d7d493bdb9f4cca26bed"
