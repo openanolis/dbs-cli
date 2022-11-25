@@ -20,5 +20,5 @@
 | `dies-per-socket`  |  false   |                                `1`                                 |                   Dies per socket to guide guest cpu topology.                   |
 |     `sockets`      |  false   |                                `1`                                 |                              The number of sockets.                              |
 |     `mem-type`     |  false   |                              `shmem`                               |                Memory type that can be either hugetlbfs or shmem.                |
-|     `mem-file`     |  false   |                                 ``                                 |                                Memory file path.                                 |
+|  `mem-file-path`   |  false   |                                 ``                                 |                                Memory file path.                                 |
 |   `initrd-path`    |  false   |                               `None`                               |                               The path of initrd.                                |
