@@ -22,3 +22,4 @@
 |     `mem-type`     |  false   |                              `shmem`                               |                Memory type that can be either hugetlbfs or shmem.                |
 |  `mem-file-path`   |  false   |                                 ``                                 |                                Memory file path.                                 |
 |   `initrd-path`    |  false   |                               `None`                               |                               The path of initrd.                                |
+|   `api-sock-path`  |  false   |                               ``                                   |                    The path of api server unix domain socket                     |

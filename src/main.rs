@@ -6,16 +6,21 @@ use std::str::FromStr;
 use std::sync::Mutex;
 
 use anyhow::Result;
+use api_client::run_api_client;
 use clap::Parser;
 use slog::Drain;
 use slog::*;
 use slog_scope::set_global_logger;
 
 use parser::run_with_cli;
+use parser::Commands;
 use parser::DBSArgs;
 
+mod api_client;
+mod api_server;
 mod cli_instance;
 mod parser;
+mod vmm_comm_trait;
 
 fn main() -> Result<()> {
     let args: DBSArgs = DBSArgs::parse();
@@ -38,6 +43,16 @@ fn main() -> Result<()> {
 
     let _guard = set_global_logger(root);
 
-    run_with_cli(args)?;
+    match args.command {
+        Some(Commands::Create) => {
+            run_with_cli(args)?;
+        }
+        Some(Commands::Connect) => {
+            run_api_client(args)?;
+        }
+        _ => {
+            panic!("Invalid command provided for dbs-cli.");
+        }
+    }
     Ok(())
 }
