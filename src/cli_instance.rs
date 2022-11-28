@@ -8,18 +8,19 @@ use std::{
     path::{Path, PathBuf},
     sync::{
         mpsc::{Receiver, Sender},
-        Arc, RwLock,
+        Arc, Mutex, RwLock,
     },
 };
 
-use anyhow::{anyhow, Context, Result};
+use crate::vmm_comm_trait::VMMComm;
+use anyhow::{anyhow, Result};
 use seccompiler::BpfProgram;
 use vmm_sys_util::eventfd::EventFd;
 
 use dragonball::{
     api::v1::{
-        BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmAction, VmmActionError, VmmData,
-        VmmRequest, VmmResponse, VsockDeviceConfigInfo,
+        BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmRequest, VmmResponse,
+        VsockDeviceConfigInfo,
     },
     vm::{CpuTopology, VmConfigInfo},
 };
@@ -27,21 +28,29 @@ use dragonball::{
 use crate::parser::DBSArgs;
 
 const DRAGONBALL_VERSION: &str = env!("CARGO_PKG_VERSION");
-const REQUEST_RETRY: u32 = 500;
-
-pub enum Request {
-    Sync(VmmAction),
-}
 
 pub struct CliInstance {
     /// VMM instance info directly accessible from runtime
     pub vmm_shared_info: Arc<RwLock<InstanceInfo>>,
     pub to_vmm: Option<Sender<VmmRequest>>,
-    pub from_vmm: Option<Receiver<VmmResponse>>,
+    pub from_vmm: Option<Arc<Mutex<Receiver<VmmResponse>>>>,
     pub to_vmm_fd: EventFd,
     pub seccomp: BpfProgram,
 }
 
+impl VMMComm for CliInstance {
+    fn get_to_vmm(&self) -> Option<&Sender<VmmRequest>> {
+        self.to_vmm.as_ref()
+    }
+
+    fn get_from_vmm(&self) -> Option<Arc<Mutex<Receiver<VmmResponse>>>> {
+        self.from_vmm.clone()
+    }
+
+    fn get_to_vmm_fd(&self) -> &EventFd {
+        &self.to_vmm_fd
+    }
+}
 impl CliInstance {
     pub fn new(id: &str) -> Self {
         let vmm_shared_info = Arc::new(RwLock::new(InstanceInfo::new(
@@ -61,7 +70,13 @@ impl CliInstance {
         }
     }
 
-    pub fn run_vmm_server(&mut self, args: DBSArgs) -> Result<()> {
+    pub fn run_vmm_server(&self, args: DBSArgs) -> Result<()> {
+        if args.boot_args.kernel_path.is_none() || args.boot_args.rootfs_args.rootfs.is_none() {
+            return Err(anyhow!(
+                "kernel path or rootfs path cannot be None when creating the VM"
+            ));
+        }
+
         // configuration
         let vm_config = VmConfigInfo {
             vcpu_count: args.create_args.vcpu,
@@ -90,7 +105,8 @@ impl CliInstance {
 
         // boot source
         let boot_source_config = BootSourceConfig {
-            kernel_path: args.boot_args.kernel_path.clone(),
+            // unwrap is safe because we have checked kernel_path in the beginning of run_vmm_server
+            kernel_path: args.boot_args.kernel_path.unwrap(),
             initrd_path: args.boot_args.initrd_path.clone(),
             boot_args: Some(args.boot_args.boot_args.clone()),
         };
@@ -99,7 +115,8 @@ impl CliInstance {
         let mut block_device_config_info = BlockDeviceConfigInfo::default();
         block_device_config_info = BlockDeviceConfigInfo {
             drive_id: String::from("rootfs"),
-            path_on_host: PathBuf::from(&args.boot_args.rootfs_args.rootfs),
+            // unwrap is safe because we have checked rootfs path in the beginning of run_vmm_server
+            path_on_host: PathBuf::from(&args.boot_args.rootfs_args.rootfs.unwrap()),
             is_root_device: args.boot_args.rootfs_args.is_root,
             is_read_only: args.boot_args.rootfs_args.is_read_only,
             ..block_device_config_info
@@ -135,106 +152,5 @@ impl CliInstance {
         self.instance_start().expect("failed to start micro-vm");
 
         Ok(())
-    }
-
-    pub fn put_boot_source(&self, boot_source_cfg: BootSourceConfig) -> Result<()> {
-        self.handle_request(Request::Sync(VmmAction::ConfigureBootSource(
-            boot_source_cfg,
-        )))
-        .context("Failed to configure boot source")?;
-        Ok(())
-    }
-
-    pub fn instance_start(&self) -> Result<()> {
-        self.handle_request(Request::Sync(VmmAction::StartMicroVm))
-            .context("Failed to start MicroVm")?;
-        Ok(())
-    }
-
-    pub fn insert_block_device(&self, device_cfg: BlockDeviceConfigInfo) -> Result<()> {
-        self.handle_request_with_retry(Request::Sync(VmmAction::InsertBlockDevice(
-            device_cfg.clone(),
-        )))
-        .with_context(|| format!("Failed to insert block device {:?}", device_cfg))?;
-        Ok(())
-    }
-
-    pub fn set_vm_configuration(&self, vm_config: VmConfigInfo) -> Result<()> {
-        self.handle_request(Request::Sync(VmmAction::SetVmConfiguration(
-            vm_config.clone(),
-        )))
-        .with_context(|| format!("Failed to set vm configuration {:?}", vm_config))?;
-        Ok(())
-    }
-
-    pub fn insert_vsock(&self, vsock_cfg: VsockDeviceConfigInfo) -> Result<()> {
-        self.handle_request(Request::Sync(VmmAction::InsertVsockDevice(
-            vsock_cfg.clone(),
-        )))
-        .with_context(|| format!("Failed to insert vsock device {:?}", vsock_cfg))?;
-        Ok(())
-    }
-
-    fn send_request(&self, vmm_action: VmmAction) -> Result<VmmResponse> {
-        if let Some(ref to_vmm) = self.to_vmm {
-            to_vmm
-                .send(Box::new(vmm_action.clone()))
-                .with_context(|| format!("Failed to send  {:?} via channel ", vmm_action))?;
-        } else {
-            return Err(anyhow!("to_vmm is None"));
-        }
-
-        //notify vmm action
-        if let Err(e) = self.to_vmm_fd.write(1) {
-            return Err(anyhow!("failed to notify vmm: {}", e));
-        }
-
-        if let Some(from_vmm) = self.from_vmm.as_ref() {
-            match from_vmm.recv() {
-                Err(e) => Err(anyhow!("vmm recv err: {}", e)),
-                Ok(vmm_outcome) => Ok(vmm_outcome),
-            }
-        } else {
-            Err(anyhow!("from_vmm is None"))
-        }
-    }
-
-    fn handle_request(&self, req: Request) -> Result<VmmData> {
-        let Request::Sync(vmm_action) = req;
-        match self.send_request(vmm_action) {
-            Ok(vmm_outcome) => match *vmm_outcome {
-                Ok(vmm_data) => Ok(vmm_data),
-                Err(vmm_action_error) => Err(anyhow!("vmm action error: {:?}", vmm_action_error)),
-            },
-            Err(e) => Err(e),
-        }
-    }
-
-    fn handle_request_with_retry(&self, req: Request) -> Result<VmmData> {
-        let Request::Sync(vmm_action) = req;
-        for _ in 0..REQUEST_RETRY {
-            match self.send_request(vmm_action.clone()) {
-                Ok(vmm_outcome) => match *vmm_outcome {
-                    Ok(vmm_data) => {
-                        return Ok(vmm_data);
-                    }
-                    Err(vmm_action_error) => {
-                        if let VmmActionError::UpcallNotReady = vmm_action_error {
-                            std::thread::sleep(std::time::Duration::from_millis(10));
-                            continue;
-                        } else {
-                            return Err(vmm_action_error.into());
-                        }
-                    }
-                },
-                Err(err) => {
-                    return Err(err);
-                }
-            }
-        }
-        Err(anyhow::anyhow!(
-            "After {} attempts, it still doesn't work.",
-            REQUEST_RETRY
-        ))
     }
 }

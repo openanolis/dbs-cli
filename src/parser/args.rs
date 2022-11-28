@@ -2,13 +2,16 @@
 // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-use clap::{Args, Parser};
+use clap::{Args, Parser, Subcommand};
 use serde_derive::{Deserialize, Serialize};
 
 /// A simple command-line tool to start DragonBall micro-VM
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
 pub struct DBSArgs {
+    #[clap(subcommand)]
+    pub command: Option<Commands>,
+
     #[clap(flatten)]
     pub create_args: CreateArgs,
 
@@ -20,10 +23,30 @@ pub struct DBSArgs {
 
     #[clap(long, value_parser, default_value = "Info", display_order = 1)]
     pub log_level: String,
+
+    #[clap(
+        long,
+        value_parser,
+        default_value = "",
+        help = "The path to the api server socket file (should be a unix domain socket in the host)",
+        display_order = 2
+    )]
+    pub api_sock_path: String,
+
+    #[clap(flatten)]
+    pub connect_args: ConnectArgs,
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum Commands {
+    /// Create Dragonball Instance
+    Create,
+    /// Connect to Dragonball Api Server (Must create a api socket when creating the Dragonball VM)
+    Connect,
 }
 
 /// CPU related configurations
-#[derive(Args, Debug, Serialize, Deserialize)]
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
 pub struct CpuTopologyArgs {
     #[clap(
         long,
@@ -63,7 +86,7 @@ pub struct CpuTopologyArgs {
 }
 
 /// Rootfs configuration
-#[derive(Args, Debug, Serialize, Deserialize)]
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
 pub struct RootfsArgs {
     #[clap(
         short,
@@ -72,7 +95,7 @@ pub struct RootfsArgs {
         help = "The path of rootfs file",
         display_order = 4
     )]
-    pub rootfs: String,
+    pub rootfs: Option<String>,
 
     #[clap(
         long,
@@ -94,7 +117,7 @@ pub struct RootfsArgs {
 }
 
 /// Configurations used for creating a VM.
-#[derive(Args, Debug, Deserialize, Serialize)]
+#[derive(Args, Debug, Deserialize, Serialize, Clone)]
 pub struct CreateArgs {
     /// features of cpu
     #[clap(
@@ -186,7 +209,7 @@ pub struct CreateArgs {
 }
 
 /// Config boot source including rootfs file path
-#[derive(Args, Debug, Deserialize, Serialize)]
+#[derive(Args, Debug, Deserialize, Serialize, Clone)]
 #[clap(arg_required_else_help = true)]
 pub struct BootArgs {
     #[clap(
@@ -196,7 +219,7 @@ pub struct BootArgs {
         help = "The path of kernel image (Only uncompressed kernel is supported for Dragonball)",
         display_order = 1
     )]
-    pub kernel_path: String,
+    pub kernel_path: Option<String>,
 
     #[clap(
         short,
@@ -221,4 +244,15 @@ pub struct BootArgs {
     /// rootfs
     #[clap(flatten)]
     pub rootfs_args: RootfsArgs,
+}
+
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
+pub struct ConnectArgs {
+    #[clap(
+        long,
+        value_parser,
+        help = "Resize Vcpu through connection with dbs-cli api server",
+        display_order = 2
+    )]
+    pub vcpu_resize: Option<usize>,
 }
