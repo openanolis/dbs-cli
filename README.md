@@ -104,6 +104,8 @@ Regarding the dependency issue of the upstream library, it is recommended to bui
 make build
 ```
 
+If the self-defined `dragonball` dependency is supposed to be used, please refer to [dependency document](docs/dependency.md)
+
 # License
 
 `DBS-CLI` is licensed under [Apache License](http://www.apache.org/licenses/LICENSE-2.0), Version 2.0.
