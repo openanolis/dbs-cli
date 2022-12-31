@@ -88,3 +88,5 @@ cargo run -- --help
 ```bash
 make build
 ```
+
+如果期望使用自己的本地仓库取代现有的`dragonball`依赖的来源，可以参考[文档](docs/zh/dependency_zh.md)
