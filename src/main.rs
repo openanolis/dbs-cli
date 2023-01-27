@@ -45,7 +45,7 @@ fn main() -> Result<()> {
             let _guard = set_global_logger(root);
             run_with_cli(args)?;
         }
-        Some(Commands::Connect) => {
+        Some(Commands::Update) => {
             run_api_client(args)?;
         }
         _ => {

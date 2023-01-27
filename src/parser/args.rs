@@ -34,15 +34,15 @@ pub struct DBSArgs {
     pub api_sock_path: String,
 
     #[clap(flatten)]
-    pub connect_args: ConnectArgs,
+    pub update_args: UpdateArgs,
 }
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
     /// Create Dragonball Instance
     Create,
-    /// Connect to Dragonball Api Server (Must create a api socket when creating the Dragonball VM)
-    Connect,
+    /// Connect to Dragonball Api Server and update the Dragonball VM (Must create a api socket when creating the Dragonball VM)
+    Update,
 }
 
 /// CPU related configurations
@@ -247,7 +247,7 @@ pub struct BootArgs {
 }
 
 #[derive(Args, Debug, Serialize, Deserialize, Clone)]
-pub struct ConnectArgs {
+pub struct UpdateArgs {
     #[clap(
         long,
         value_parser,

@@ -76,15 +76,15 @@ Create a virtio-vsock tunnel for Guest-to-Host communication.
 
 # 2. Usage
 
-## 1. Create API Server
+## 1. Create API Server and Update VM
 
 An API Server could be created by adding `--api-sock-path [socket path]`  into dbs-cli creation command.
 
-After api socket created, you could use `./dbs-cli --api-sock-path [socket path] connect` to send commands to the running VM.
+After api socket created, you could use `./dbs-cli --api-sock-path [socket path] update` to send commands to the running VM.
 
 Right now, we have only one command for cpu resizing, and here is the command example.
 
-`sudo ./dbs-cli  --api-sock-path [socket path] --vcpu-resize 2 connect`
+`sudo ./dbs-cli  --api-sock-path [socket path] --vcpu-resize 2 update`
 ## 2. Exit vm
 
 > If you want to exit vm, just input `reboot` in vm's console.

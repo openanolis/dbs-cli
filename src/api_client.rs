@@ -1,18 +1,17 @@
 // Copyright (C) 2022 Alibaba Cloud. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::io::Write;
+use std::os::unix::net::UnixStream;
+
 use anyhow::{Context, Result};
 use serde_json::{json, Value};
 
 use crate::parser::DBSArgs;
-use std::os::unix::net::UnixStream;
-
-// src/bin/server.rs
-use std::io::Write;
 
 pub fn run_api_client(args: DBSArgs) -> Result<()> {
     let request;
-    if let Some(vcpu_resize_num) = args.connect_args.vcpu_resize {
+    if let Some(vcpu_resize_num) = args.update_args.vcpu_resize {
         request = request_cpu_resize(vcpu_resize_num);
         send_request(request, args.api_sock_path)?;
     }

@@ -70,7 +70,6 @@ pub fn run_with_cli(args: DBSArgs) -> Result<i32> {
         })
         .unwrap();
 
-    println!("[CHAOTEST] 2");
     if !args.api_sock_path.is_empty() {
         thread::Builder::new()
             .name("api_server".to_owned())
