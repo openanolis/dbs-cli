@@ -18,7 +18,7 @@ A simple example:
 ./dbs-cli \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/rootfs.dmg \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" ;
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
 ```
 
 For the rootfs from firecracker:
@@ -27,7 +27,7 @@ For the rootfs from firecracker:
 ./dbs-cli \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda" ;
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda" create ;
 ```
 
 
@@ -40,7 +40,7 @@ Set the log level and log file:
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" ;
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
 ```
 
 Create a vsock console (communication with sock file)
@@ -55,7 +55,7 @@ Create a vsock console (communication with sock file)
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
   --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
-  --serial-path "/tmp/dbs" ;
+  --serial-path "/tmp/dbs" creare;
 ```
 
 Create a virtio-vsock tunnel for Guest-to-Host communication.
@@ -71,16 +71,25 @@ Create a virtio-vsock tunnel for Guest-to-Host communication.
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
   --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
-  --vsock /tmp/vsock.sock;
+  --vsock /tmp/vsock.sock create;
 ```
 
 # 2. Usage
 
-## 1. Exit vm
+## 1. Create API Server and Update VM
+
+An API Server could be created by adding `--api-sock-path [socket path]`  into dbs-cli creation command.
+
+After api socket created, you could use `./dbs-cli --api-sock-path [socket path] update` to send commands to the running VM.
+
+Right now, we have only one command for cpu resizing, and here is the command example.
+
+`sudo ./dbs-cli  --api-sock-path [socket path] --vcpu-resize 2 update`
+## 2. Exit vm
 
 > If you want to exit vm, just input `reboot` in vm's console.
 
-## 2. For developers
+## 3. For developers
 
 If you wish to modify some details or debug to figure out the fault of codes, you can do as follow to see whether the program act expectedly or not.
 
