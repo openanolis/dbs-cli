@@ -9,6 +9,7 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, VmmAction, VmmActionError, VmmData, VmmRequest,
         VmmResponse, VsockDeviceConfigInfo,
     },
+    vcpu::VcpuResizeInfo,
     vm::VmConfigInfo,
 };
 
@@ -67,7 +68,7 @@ pub trait VMMComm {
                         return Ok(vmm_data);
                     }
                     Err(vmm_action_error) => {
-                        if let VmmActionError::UpcallNotReady = vmm_action_error {
+                        if let VmmActionError::UpcallServerNotReady = vmm_action_error {
                             std::thread::sleep(std::time::Duration::from_millis(10));
                             continue;
                         } else {
@@ -121,6 +122,14 @@ pub trait VMMComm {
             vsock_cfg.clone(),
         )))
         .with_context(|| format!("Failed to insert vsock device {:?}", vsock_cfg))?;
+        Ok(())
+    }
+
+    fn resize_vcpu(&self, resize_vcpu_cfg: VcpuResizeInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::ResizeVcpu(
+            resize_vcpu_cfg.clone(),
+        )))
+        .with_context(|| format!("Failed to resize vcpu {:?}", resize_vcpu_cfg))?;
         Ok(())
     }
 }
