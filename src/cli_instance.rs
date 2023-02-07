@@ -76,6 +76,11 @@ impl CliInstance {
                 "kernel path or rootfs path cannot be None when creating the VM"
             ));
         }
+        let mut serial_path: Option<String> = None;
+
+        if args.create_args.serial_path != "stdio" {
+            serial_path = Some(args.create_args.serial_path);
+        }
 
         // configuration
         let vm_config = VmConfigInfo {
@@ -94,13 +99,17 @@ impl CliInstance {
             mem_size_mib: args.create_args.mem_size,
             // as in crate `dragonball` serial_path will be assigned with a default value,
             // we need a special token to enable the stdio console.
-            serial_path: Some(args.create_args.serial_path.clone()),
+            serial_path: serial_path.clone(),
         };
 
-        // check the existence of the serial path (rm it if exist)
-        let serial_file = Path::new(&args.create_args.serial_path);
-        if args.create_args.serial_path != *"stdio" && serial_file.exists() {
-            std::fs::remove_file(serial_file).unwrap();
+        if serial_path.is_some() {
+            // check the existence of the serial path (rm it if exist)
+            // unwrap is safe  because we have check it is Some above.
+            let com1_sock_path = serial_path.unwrap();
+            let serial_file = Path::new(com1_sock_path.as_str());
+            if serial_file.exists() {
+                std::fs::remove_file(serial_file).unwrap();
+            }
         }
 
         // boot source
