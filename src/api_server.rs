@@ -13,6 +13,7 @@ use anyhow::{Context, Result};
 
 use crate::vmm_comm_trait::VMMComm;
 use dragonball::api::v1::{VmmRequest, VmmResponse};
+use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 
 use vmm_sys_util::eventfd::EventFd;
@@ -73,7 +74,10 @@ impl ApiServer {
 
         match v["action"].as_str() {
             Some("resize_vcpu") => {
-                println!("mock resize vcpu (will add the actual one when vcpu resize is merged in Dragonball under Kata Container Project");
+                let resize_vcpu_cfg = VcpuResizeInfo {
+                    vcpu_count: v["vcpu_count"].as_u64().map(|count| count as u8),
+                };
+                return self.resize_vcpu(resize_vcpu_cfg);
             }
             _ => {
                 println!("Unknown Actions");
