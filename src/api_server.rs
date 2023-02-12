@@ -10,6 +10,7 @@ use std::os::unix::net::{UnixListener, UnixStream};
 
 use anyhow::{anyhow, Context, Result};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
+use dragonball::device_manager::mem_dev_mgr::MemDeviceConfigInfo;
 use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
 
 use crate::vmm_comm_trait::VMMComm;
@@ -104,6 +105,21 @@ impl ApiServer {
                     self.insert_virblk(config.clone())
                         .context("Insert a virtio-blk device to the Dragonball")?;
                 }
+            }
+            Some("hotplug_memory") => {
+                let mem_cfg = MemDeviceConfigInfo {
+                    mem_id: "virtio-mem0".to_string(),
+                    capacity_mib: 0,
+                    size_mib: v["size_mib"]
+                        .as_u64()
+                        .context("Invalid virtio-mem size input")?,
+                    multi_region: true,
+                    host_numa_node_id: None,
+                    guest_numa_node_id: None,
+                    use_generic_irq: None,
+                    use_shared_irq: None,
+                };
+                return self.insert_mem_device(mem_cfg);
             }
             _ => {
                 println!("Unknown Actions");

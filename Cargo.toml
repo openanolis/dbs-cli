@@ -10,8 +10,10 @@ dragonball = { git = "https://github.com/kata-containers/kata-containers", branc
     "virtio-blk",
     "virtio-vsock",
     "virtio-net",
+    "virtio-mem",
     "hotplug",
     "dbs-upcall",
+    "atomic-guest-memory"
 ] }
 clap = { version = "4.0.27", features = ["derive"] }
 serde = "1.0.27"

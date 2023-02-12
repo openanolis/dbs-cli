@@ -22,6 +22,11 @@ pub fn run_api_client(args: DBSArgs) -> Result<()> {
         let request = request_virtio_blk(&config);
         send_request(request, &args.api_sock_path)?;
     }
+    if let Some(size_mib) = args.update_args.hotplug_memory {
+        let request = request_hotplug_memory(size_mib);
+        send_request(request, &args.api_sock_path)?;
+    }
+
     Ok(())
 }
 
@@ -45,6 +50,13 @@ fn request_virtio_blk(virtio_blk_config: &str) -> Value {
     json!({
         "action": "insert_virblks",
         "config": virtio_blk_config,
+    })
+}
+
+fn request_hotplug_memory(size_mib: usize) -> Value {
+    json!({
+        "action": "hotplug_memory",
+        "size_mib": size_mib,
     })
 }
 
