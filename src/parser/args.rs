@@ -305,4 +305,12 @@ The type of it is an array of BlockDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub hotplug_memory: Option<usize>,
+
+    #[clap(
+        long,
+        value_parser,
+        help = "Balloon memory (MiB) through connection with dbs-cli api server",
+        display_order = 2
+    )]
+    pub balloon_memory: Option<usize>,
 }
