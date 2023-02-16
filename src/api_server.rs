@@ -52,7 +52,7 @@ impl ApiServer {
 
     pub fn run_api_server(&mut self, api_sock_path: &str) -> Result<()> {
         let unix_listener = UnixListener::bind(api_sock_path)?;
-        println!("dbs-cli: api server created in api_sock_path {:?}. Start waiting for connections from the client side.", api_sock_path);
+        println!("dbs-cli: api server created in api_sock_path {api_sock_path:?}. Start waiting for connections from the client side.");
 
         // put the server logic in a loop to accept several connections
         loop {
@@ -84,7 +84,7 @@ impl ApiServer {
             }
         }
 
-        println!("{}", message);
+        println!("{message}");
         Ok(())
     }
 }

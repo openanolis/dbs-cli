@@ -40,7 +40,7 @@ pub trait VMMComm {
         if let Some(to_vmm) = self.get_to_vmm() {
             to_vmm
                 .send(Box::new(vmm_action.clone()))
-                .with_context(|| format!("Failed to send  {:?} via channel ", vmm_action))?;
+                .with_context(|| format!("Failed to send {vmm_action:?} via channel "))?;
         } else {
             return Err(anyhow!("to_vmm is None"));
         }
@@ -105,7 +105,7 @@ pub trait VMMComm {
         self.handle_request_with_retry(Request::Sync(VmmAction::InsertBlockDevice(
             device_cfg.clone(),
         )))
-        .with_context(|| format!("Failed to insert block device {:?}", device_cfg))?;
+        .with_context(|| format!("Failed to insert block device {device_cfg:?}"))?;
         Ok(())
     }
 
@@ -113,7 +113,7 @@ pub trait VMMComm {
         self.handle_request(Request::Sync(VmmAction::SetVmConfiguration(
             vm_config.clone(),
         )))
-        .with_context(|| format!("Failed to set vm configuration {:?}", vm_config))?;
+        .with_context(|| format!("Failed to set vm configuration {vm_config:?}"))?;
         Ok(())
     }
 
@@ -121,7 +121,7 @@ pub trait VMMComm {
         self.handle_request(Request::Sync(VmmAction::InsertVsockDevice(
             vsock_cfg.clone(),
         )))
-        .with_context(|| format!("Failed to insert vsock device {:?}", vsock_cfg))?;
+        .with_context(|| format!("Failed to insert vsock device {vsock_cfg:?}"))?;
         Ok(())
     }
 
@@ -129,7 +129,7 @@ pub trait VMMComm {
         self.handle_request(Request::Sync(VmmAction::ResizeVcpu(
             resize_vcpu_cfg.clone(),
         )))
-        .with_context(|| format!("Failed to resize vcpu {:?}", resize_vcpu_cfg))?;
+        .with_context(|| format!("Failed to resize vcpu {resize_vcpu_cfg:?}"))?;
         Ok(())
     }
 }
