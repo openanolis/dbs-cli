@@ -59,7 +59,7 @@ impl CliInstance {
         )));
 
         let to_vmm_fd = EventFd::new(libc::EFD_NONBLOCK)
-            .unwrap_or_else(|_| panic!("Failed to create eventfd for vmm {}", id));
+            .unwrap_or_else(|_| panic!("Failed to create eventfd for vmm {id}"));
 
         CliInstance {
             vmm_shared_info,
@@ -102,13 +102,12 @@ impl CliInstance {
             serial_path: serial_path.clone(),
         };
 
-        if serial_path.is_some() {
+        if let Some(com1_sock_path) = serial_path {
             // check the existence of the serial path (rm it if exist)
             // unwrap is safe  because we have check it is Some above.
-            let com1_sock_path = serial_path.unwrap();
             let serial_file = Path::new(com1_sock_path.as_str());
             if serial_file.exists() {
-                std::fs::remove_file(serial_file).unwrap();
+                std::fs::remove_file(serial_file)?;
             }
         }
 
@@ -148,7 +147,7 @@ impl CliInstance {
             let mut vsock_config_info = VsockDeviceConfigInfo::default();
             vsock_config_info = VsockDeviceConfigInfo {
                 guest_cid: 42, // dummy value
-                uds_path: Some(args.create_args.vsock.to_string()),
+                uds_path: Some(args.create_args.vsock),
                 ..vsock_config_info
             };
 
