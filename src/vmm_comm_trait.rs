@@ -1,4 +1,4 @@
-use std::sync::mpsc::{Receiver, Sender};
+use crossbeam_channel::{Receiver, Sender};
 use vmm_sys_util::eventfd::EventFd;
 
 use anyhow::{anyhow, Context, Result};
