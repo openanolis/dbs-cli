@@ -5,7 +5,7 @@
 use std::{
     fs::OpenOptions,
     os::unix::io::IntoRawFd,
-    sync::{mpsc::channel, Arc, Mutex},
+    sync::{Arc, Mutex},
     thread,
 };
 
@@ -13,6 +13,7 @@ use anyhow::Result;
 
 pub use args::Commands;
 pub use args::DBSArgs;
+use crossbeam_channel::unbounded;
 use dragonball::{api::v1::VmmService, Vmm};
 
 use crate::api_server::ApiServer;
@@ -27,8 +28,8 @@ pub fn run_with_cli(args: DBSArgs) -> Result<i32> {
 
     let kvm = OpenOptions::new().read(true).write(true).open(KVM_DEVICE)?;
 
-    let (to_vmm, from_runtime) = channel();
-    let (to_runtime, from_vmm) = channel();
+    let (to_vmm, from_runtime) = unbounded();
+    let (to_runtime, from_vmm) = unbounded();
 
     let vmm_service = VmmService::new(from_runtime, to_runtime);
 

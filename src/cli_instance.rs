@@ -6,14 +6,12 @@
 
 use std::{
     path::{Path, PathBuf},
-    sync::{
-        mpsc::{Receiver, Sender},
-        Arc, Mutex, RwLock,
-    },
+    sync::{Arc, Mutex, RwLock},
 };
 
 use crate::vmm_comm_trait::VMMComm;
 use anyhow::{anyhow, Result};
+use crossbeam_channel::{Receiver, Sender};
 use seccompiler::BpfProgram;
 use vmm_sys_util::eventfd::EventFd;
 
@@ -93,7 +91,7 @@ impl CliInstance {
                 dies_per_socket: args.create_args.cpu_topology.dies_per_socket,
                 sockets: args.create_args.cpu_topology.sockets,
             },
-            vpmu_feature: 0,
+            vpmu_feature: args.create_args.vpmu_feature,
             mem_type: args.create_args.mem_type.clone(),
             mem_file_path: args.create_args.mem_file_path.clone(),
             mem_size_mib: args.create_args.mem_size,

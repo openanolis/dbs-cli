@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
 
 use std::io::prelude::*;
@@ -16,6 +15,7 @@ use dragonball::api::v1::{VmmRequest, VmmResponse};
 use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 
+use crossbeam_channel::{Receiver, Sender};
 use vmm_sys_util::eventfd::EventFd;
 
 pub struct ApiServer {
