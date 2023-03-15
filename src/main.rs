@@ -43,6 +43,7 @@ fn main() -> Result<()> {
             );
 
             let _guard = set_global_logger(root);
+            slog_stdlog::init().unwrap();
             run_with_cli(args)?;
         }
         Some(Commands::Update) => {
