@@ -206,6 +206,17 @@ pub struct CreateArgs {
         display_order = 2
     )]
     pub vsock: String,
+
+    #[clap(
+        long,
+        value_parser,
+        default_value = "",
+        help = r#"Insert virtio-net devices into the Dragonball. 
+The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
+    --virnets '[{"iface_id":"eth0","host_dev_name":"tap0","num_queues":2,"queue_size":0,"allow_duplicate_mac":true}]'"#,
+        display_order = 2
+    )]
+    pub virnets: String,
 }
 
 /// Config boot source including rootfs file path
@@ -255,4 +266,13 @@ pub struct UpdateArgs {
         display_order = 2
     )]
     pub vcpu_resize: Option<usize>,
+    #[clap(
+        long,
+        value_parser,
+        help = r#"Insert hotplug virtio-net devices into the Dragonball. 
+The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
+    --hotplug-virnets '[{"iface_id":"eth0","host_dev_name":"tap0","num_queues":2,"queue_size":0,"allow_duplicate_mac":true}]'"#,
+        display_order = 2
+    )]
+    pub hotplug_virnets: Option<String>,
 }

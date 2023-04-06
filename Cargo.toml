@@ -6,7 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dragonball = { git = "https://github.com/kata-containers/kata-containers", branch = "main", features=["virtio-blk", "virtio-vsock", "hotplug", "dbs-upcall" ] }
+dragonball = { git = "https://github.com/kata-containers/kata-containers", branch = "main", features = [
+    "virtio-blk",
+    "virtio-vsock",
+    "virtio-net",
+    "hotplug",
+    "dbs-upcall",
+] }
 clap = { version = "4.0.27", features = ["derive"] }
 serde = "1.0.27"
 serde_derive = "1.0.27"
@@ -26,4 +32,3 @@ slog-scope = "4.4.0"
 slog-stdlog = "4.1.1"
 serde_json = "1.0.89"
 crossbeam-channel = "0.5.6"
-
