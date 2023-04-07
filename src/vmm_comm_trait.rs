@@ -9,6 +9,7 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, VmmAction, VmmActionError, VmmData, VmmRequest,
         VmmResponse, VsockDeviceConfigInfo,
     },
+    device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vcpu::VcpuResizeInfo,
     vm::VmConfigInfo,
 };
@@ -130,6 +131,12 @@ pub trait VMMComm {
             resize_vcpu_cfg.clone(),
         )))
         .with_context(|| format!("Failed to resize vcpu {resize_vcpu_cfg:?}"))?;
+        Ok(())
+    }
+
+    fn insert_virnet(&self, config: VirtioNetDeviceConfigInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::InsertNetworkDevice(config)))
+            .context("Request to insert a virtio-net device")?;
         Ok(())
     }
 }

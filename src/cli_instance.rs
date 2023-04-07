@@ -20,6 +20,7 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmRequest, VmmResponse,
         VsockDeviceConfigInfo,
     },
+    device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vm::{CpuTopology, VmConfigInfo},
 };
 
@@ -152,6 +153,16 @@ impl CliInstance {
             // set vsock
             self.insert_vsock(vsock_config_info)
                 .expect("failed to set vsock socket path");
+        }
+
+        if !args.create_args.virnets.is_empty() {
+            let configs: Vec<VirtioNetDeviceConfigInfo> =
+                serde_json::from_str(&args.create_args.virnets)
+                    .expect("failed to parse virtio-net devices from JSON");
+            for config in configs.into_iter() {
+                self.insert_virnet(config)
+                    .expect("failed to insert a virtio-net device");
+            }
         }
 
         // start micro-vm

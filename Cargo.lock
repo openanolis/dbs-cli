@@ -458,7 +458,7 @@ dependencies = [
 [[package]]
 name = "dragonball"
 version = "0.1.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#dc42f0a33b4e60750cda9aba241d25a88cbc65c2"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#ee5dda012b3a8dca08eb1eea32ddac37b5355fd6"
 dependencies = [
  "arc-swap",
  "bytes",

@@ -74,6 +74,21 @@ Create a virtio-vsock tunnel for Guest-to-Host communication.
   --vsock /tmp/vsock.sock create;
 ```
 
+Create virtio-net devices.
+
+> The type of the `--virnets` receives an array of VirtioNetDeviceConfigInfo in the
+> format of JSON.
+
+```
+./dbs-cli \
+  --log-file dbs-cli.log --log-level ERROR \
+  --kernel-path ~/path/to/kernel/vmlinux.bin \
+  --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --virnets "[{\"iface_id\":\"eth0\",\"host_dev_name\":\"tap0\",\"num_queues\":2,\"queue_size\":0,\"guest_mac\":\"43:2D:9C:13:71:48\",\"allow_duplicate_mac\":true}]" \
+  create;
+```
+
 # 2. Usage
 
 ## 1. Create API Server and Update VM
@@ -85,6 +100,19 @@ After api socket created, you could use `./dbs-cli --api-sock-path [socket path]
 Right now, we have only one command for cpu resizing, and here is the command example.
 
 `sudo ./dbs-cli  --api-sock-path [socket path] --vcpu-resize 2 update`
+
+Create hot-plug virtio-net devices via API Server.
+
+> The type of the `--hotplug-virnets` receives an array of
+> VirtioNetDeviceConfigInfo in the format of JSON.
+
+```
+sudo ./dbs-cli  \
+  --api-sock-path [socket path]
+  --hotplug-virnets "[{\"iface_id\":\"eth0\",\"host_dev_name\":\"tap0\",\"num_queues\":2,\"queue_size\":0,\"guest_mac\":\"43:2D:9C:13:71:48\",\"allow_duplicate_mac\":true}]" \
+  update
+```
+
 ## 2. Exit vm
 
 > If you want to exit vm, just input `reboot` in vm's console.

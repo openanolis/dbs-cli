@@ -8,7 +8,8 @@ use std::sync::{Arc, Mutex};
 use std::io::prelude::*;
 use std::os::unix::net::{UnixListener, UnixStream};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
 
 use crate::vmm_comm_trait::VMMComm;
 use dragonball::api::v1::{VmmRequest, VmmResponse};
@@ -78,6 +79,18 @@ impl ApiServer {
                     vcpu_count: v["vcpu_count"].as_u64().map(|count| count as u8),
                 };
                 return self.resize_vcpu(resize_vcpu_cfg);
+            }
+            Some("insert_virnets") => {
+                let config_json = match v["config"].as_str() {
+                    Some(config_json) => config_json,
+                    None => return Err(anyhow!("The config of virtio-net device is required")),
+                };
+                let configs: Vec<VirtioNetDeviceConfigInfo> = serde_json::from_str(config_json)
+                    .context("Parse virtio-net device config from json")?;
+                for config in configs.iter() {
+                    self.insert_virnet(config.clone())
+                        .context("Insert a virtio-net device to the Dragonball")?;
+                }
             }
             _ => {
                 println!("Unknown Actions");

@@ -10,12 +10,14 @@ use serde_json::{json, Value};
 use crate::parser::DBSArgs;
 
 pub fn run_api_client(args: DBSArgs) -> Result<()> {
-    let request;
     if let Some(vcpu_resize_num) = args.update_args.vcpu_resize {
-        request = request_cpu_resize(vcpu_resize_num);
-        send_request(request, args.api_sock_path)?;
+        let request = request_cpu_resize(vcpu_resize_num);
+        send_request(request, &args.api_sock_path)?;
     }
-
+    if let Some(config) = args.update_args.hotplug_virnets {
+        let request = request_virtio_net(&config);
+        send_request(request, &args.api_sock_path)?;
+    }
     Ok(())
 }
 
@@ -26,7 +28,15 @@ fn request_cpu_resize(vcpu_resize_num: usize) -> Value {
     })
 }
 
-fn send_request(request: Value, api_sock_path: String) -> Result<()> {
+/// Insert virtio-net devices
+fn request_virtio_net(virtio_net_config: &str) -> Value {
+    json!({
+        "action": "insert_virnets",
+        "config": virtio_net_config,
+    })
+}
+
+fn send_request(request: Value, api_sock_path: &str) -> Result<()> {
     let mut unix_stream = UnixStream::connect(api_sock_path).context("Could not create stream")?;
 
     unix_stream
