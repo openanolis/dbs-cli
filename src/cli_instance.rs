@@ -20,6 +20,7 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmRequest, VmmResponse,
         VsockDeviceConfigInfo,
     },
+    device_manager::fs_dev_mgr::FsDeviceConfigInfo,
     device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vm::{CpuTopology, VmConfigInfo},
 };
@@ -173,6 +174,13 @@ impl CliInstance {
                 self.insert_virblk(config)
                     .expect("failed to insert a virtio-blk device");
             }
+        }
+
+        if !args.create_args.fs.is_empty() {
+            let fs_config: FsDeviceConfigInfo = serde_json::from_str(&args.create_args.fs)
+                .expect("failed to parse virtio-fs devices from JSON");
+            self.insert_fs(fs_config)
+                .expect("failed to insert a virtio-fs device");
         }
 
         // start micro-vm
