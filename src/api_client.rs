@@ -18,6 +18,10 @@ pub fn run_api_client(args: DBSArgs) -> Result<()> {
         let request = request_virtio_net(&config);
         send_request(request, &args.api_sock_path)?;
     }
+    if let Some(config) = args.update_args.hotplug_virblks {
+        let request = request_virtio_blk(&config);
+        send_request(request, &args.api_sock_path)?;
+    }
     Ok(())
 }
 
@@ -33,6 +37,14 @@ fn request_virtio_net(virtio_net_config: &str) -> Value {
     json!({
         "action": "insert_virnets",
         "config": virtio_net_config,
+    })
+}
+
+/// Insert virtio-blk devices
+fn request_virtio_blk(virtio_blk_config: &str) -> Value {
+    json!({
+        "action": "insert_virblks",
+        "config": virtio_blk_config,
     })
 }
 

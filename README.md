@@ -89,6 +89,21 @@ Create virtio-net devices.
   create;
 ```
 
+Create virtio-blk devices.
+
+> The type of the `--virblks` receives an array of BlockDeviceConfigInfo in the
+> format of JSON.
+
+```
+./dbs-cli \
+  --log-file dbs-cli.log --log-level ERROR \
+  --kernel-path ~/path/to/kernel/vmlinux.bin \
+  --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
+  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]' \
+  create;
+```
+
 # 2. Usage
 
 ## 1. Create API Server and Update VM
@@ -110,6 +125,18 @@ Create hot-plug virtio-net devices via API Server.
 sudo ./dbs-cli  \
   --api-sock-path [socket path]
   --hotplug-virnets "[{\"iface_id\":\"eth0\",\"host_dev_name\":\"tap0\",\"num_queues\":2,\"queue_size\":0,\"guest_mac\":\"43:2D:9C:13:71:48\",\"allow_duplicate_mac\":true}]" \
+  update
+```
+
+Create hot-plug virtio-blk devices via API Server.
+
+> The type of the `--hotplug-virblks` receives an array of
+> BlockDeviceConfigInfo in the format of JSON.
+
+```
+sudo ./dbs-cli  \
+  --api-sock-path [socket path]
+  --hotplug-virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]' \
   update
 ```
 

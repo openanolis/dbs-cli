@@ -165,6 +165,16 @@ impl CliInstance {
             }
         }
 
+        if !args.create_args.virblks.is_empty() {
+            let configs: Vec<BlockDeviceConfigInfo> =
+                serde_json::from_str(&args.create_args.virblks)
+                    .expect("failed to parse virtio-blk devices from JSON");
+            for config in configs.into_iter() {
+                self.insert_virblk(config)
+                    .expect("failed to insert a virtio-blk device");
+            }
+        }
+
         // start micro-vm
         self.instance_start().expect("failed to start micro-vm");
 
