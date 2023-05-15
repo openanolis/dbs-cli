@@ -217,6 +217,17 @@ The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub virnets: String,
+
+    #[clap(
+        long,
+        value_parser,
+        default_value = "",
+        help = r#"Insert virtio-blk devices into the Dragonball.
+The type of it is an array of BlockDeviceConfigInfo, e.g.
+    --virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]'"#,
+        display_order = 2
+    )]
+    pub virblks: String,
 }
 
 /// Config boot source including rootfs file path
@@ -266,6 +277,7 @@ pub struct UpdateArgs {
         display_order = 2
     )]
     pub vcpu_resize: Option<usize>,
+
     #[clap(
         long,
         value_parser,
@@ -275,4 +287,14 @@ The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub hotplug_virnets: Option<String>,
+
+    #[clap(
+        long,
+        value_parser,
+        help = r#"Insert virtio-blk devices into the Dragonball.
+The type of it is an array of BlockDeviceConfigInfo, e.g.
+    --hotplug-virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]'"#,
+        display_order = 2
+    )]
+    pub hotplug_virblks: Option<String>,
 }

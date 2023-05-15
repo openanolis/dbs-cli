@@ -9,6 +9,7 @@ use std::io::prelude::*;
 use std::os::unix::net::{UnixListener, UnixStream};
 
 use anyhow::{anyhow, Context, Result};
+use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
 use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
 
 use crate::vmm_comm_trait::VMMComm;
@@ -90,6 +91,18 @@ impl ApiServer {
                 for config in configs.iter() {
                     self.insert_virnet(config.clone())
                         .context("Insert a virtio-net device to the Dragonball")?;
+                }
+            }
+            Some("insert_virblks") => {
+                let config_json = match v["config"].as_str() {
+                    Some(config_json) => config_json,
+                    None => return Err(anyhow!("The config of virtio-blk device is required")),
+                };
+                let configs: Vec<BlockDeviceConfigInfo> = serde_json::from_str(config_json)
+                    .context("Parse virtio-blk device config from json")?;
+                for config in configs.iter() {
+                    self.insert_virblk(config.clone())
+                        .context("Insert a virtio-blk device to the Dragonball")?;
                 }
             }
             _ => {

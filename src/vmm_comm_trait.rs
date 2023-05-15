@@ -139,4 +139,10 @@ pub trait VMMComm {
             .context("Request to insert a virtio-net device")?;
         Ok(())
     }
+
+    fn insert_virblk(&self, blk_cfg: BlockDeviceConfigInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::InsertBlockDevice(blk_cfg.clone())))
+            .with_context(|| format!("Failed to insert virtio-blk device {:?}", blk_cfg))?;
+        Ok(())
+    }
 }
