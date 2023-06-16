@@ -18,18 +18,8 @@ A simple example:
 ./dbs-cli \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/rootfs.dmg \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
 ```
-
-For the rootfs from firecracker:
-
-```bash
-./dbs-cli \
-  --kernel-path ~/path/to/kernel/vmlinux.bin \
-  --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda" create ;
-```
-
 
 Set the log level and log file:
 
@@ -40,8 +30,12 @@ Set the log level and log file:
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" create ;
 ```
+
+> tips: console=ttyS0 is used to connect to the guest console. If serial path is not defined, Dragonball will use stdio to interact with the guest. 
+> If serial path is defined, nc -U /tmp/to/com1 could be used to connect the guest.
+> console=ttyS1 and earlyprintk=ttyS1 are used to send guest dmesg to the log file, if not set, guest dmesg will not appear in log file.
 
 Create a vsock console (communication with sock file)
 
@@ -54,7 +48,7 @@ Create a vsock console (communication with sock file)
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
   --serial-path "/tmp/dbs" creare;
 ```
 
@@ -70,7 +64,7 @@ Create a virtio-vsock tunnel for Guest-to-Host communication.
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
   --vsock /tmp/vsock.sock create;
 ```
 
@@ -84,7 +78,7 @@ Create virtio-net devices.
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
   --virnets "[{\"iface_id\":\"eth0\",\"host_dev_name\":\"tap0\",\"num_queues\":2,\"queue_size\":0,\"guest_mac\":\"43:2D:9C:13:71:48\",\"allow_duplicate_mac\":true}]" \
   create;
 ```
@@ -99,7 +93,7 @@ Create virtio-blk devices.
   --log-file dbs-cli.log --log-level ERROR \
   --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
   --virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]' \
   create;
 ```
@@ -112,11 +106,11 @@ An API Server could be created by adding `--api-sock-path [socket path]`  into d
 
 After api socket created, you could use `./dbs-cli --api-sock-path [socket path] update` to send commands to the running VM.
 
-Right now, we have only one command for cpu resizing, and here is the command example.
+Cpu Hotplug via API Server:
 
 `sudo ./dbs-cli  --api-sock-path [socket path] --vcpu-resize 2 update`
 
-Create hot-plug virtio-net devices via API Server.
+Create hot-plug virtio-net devices via API Server:
 
 > The type of the `--hotplug-virnets` receives an array of
 > VirtioNetDeviceConfigInfo in the format of JSON.
@@ -128,7 +122,7 @@ sudo ./dbs-cli  \
   update
 ```
 
-Create hot-plug virtio-blk devices via API Server.
+Create hot-plug virtio-blk devices via API Server:
 
 > The type of the `--hotplug-virblks` receives an array of
 > BlockDeviceConfigInfo in the format of JSON.
@@ -151,7 +145,7 @@ If you wish to modify some details or debug to figure out the fault of codes, yo
 ```bash
 cargo run -- --kernel-path ~/path/to/kernel/vmlinux.bin \
   --rootfs ~/path/to/rootfs/rootfs.dmg \
-  --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" ;
+  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" ;
 ```
 
 To see some help:
