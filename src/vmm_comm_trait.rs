@@ -9,6 +9,8 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, VmmAction, VmmActionError, VmmData, VmmRequest,
         VmmResponse, VsockDeviceConfigInfo,
     },
+    device_manager::balloon_dev_mgr::BalloonDeviceConfigInfo,
+    device_manager::mem_dev_mgr::MemDeviceConfigInfo,
     device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vcpu::VcpuResizeInfo,
     vm::VmConfigInfo,
@@ -143,6 +145,20 @@ pub trait VMMComm {
     fn insert_virblk(&self, blk_cfg: BlockDeviceConfigInfo) -> Result<()> {
         self.handle_request(Request::Sync(VmmAction::InsertBlockDevice(blk_cfg.clone())))
             .with_context(|| format!("Failed to insert virtio-blk device {:?}", blk_cfg))?;
+        Ok(())
+    }
+
+    fn insert_mem_device(&self, mem_cfg: MemDeviceConfigInfo) -> Result<()> {
+        self.handle_request_with_retry(Request::Sync(VmmAction::InsertMemDevice(mem_cfg.clone())))
+            .with_context(|| format!("Failed to insert mem device {:?}", mem_cfg))?;
+        Ok(())
+    }
+
+    fn insert_balloon_device(&self, balloon_cfg: BalloonDeviceConfigInfo) -> Result<()> {
+        self.handle_request_with_retry(Request::Sync(VmmAction::InsertBalloonDevice(
+            balloon_cfg.clone(),
+        )))
+        .with_context(|| format!("Failed to insert balloon device {:?}", balloon_cfg))?;
         Ok(())
     }
 }
