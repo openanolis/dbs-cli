@@ -228,6 +228,15 @@ The type of it is an array of BlockDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub virblks: String,
+
+    #[clap(
+        long,
+        value_parser,
+        default_value = "",
+        help = r#"Insert virtio-fs devices into the Dragonball using the FsDeviceConfigInfo."#,
+        display_order = 2
+    )]
+    pub fs: String,
 }
 
 /// Config boot source including rootfs file path
@@ -297,4 +306,12 @@ The type of it is an array of BlockDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub hotplug_virblks: Option<String>,
+
+    #[clap(
+        long,
+        value_parser,
+        help = r#"attach or detach a virtiofs backend fs using the FsMountConfig."#,
+        display_order = 2
+    )]
+    pub patch_fs: Option<String>,
 }

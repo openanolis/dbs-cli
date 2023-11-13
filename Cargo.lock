@@ -403,6 +403,7 @@ dependencies = [
  "dbs-interrupt",
  "dbs-utils",
  "epoll",
+ "fuse-backend-rs",
  "io-uring",
  "kvm-bindings",
  "kvm-ioctls",
@@ -572,6 +573,7 @@ dependencies = [
  "mio",
  "nix 0.24.3",
  "tokio-uring",
+ "virtio-queue",
  "vm-memory",
  "vmm-sys-util 0.10.0",
 ]

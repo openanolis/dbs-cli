@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 dragonball = { git = "https://github.com/kata-containers/kata-containers", branch = "main", features = [
     "virtio-blk",
+    "virtio-fs",
     "virtio-vsock",
     "virtio-net",
     "hotplug",

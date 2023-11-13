@@ -10,6 +10,7 @@ use std::os::unix::net::{UnixListener, UnixStream};
 
 use anyhow::{anyhow, Context, Result};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
+use dragonball::device_manager::fs_dev_mgr::FsMountConfigInfo;
 use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
 
 use crate::vmm_comm_trait::VMMComm;
@@ -104,6 +105,16 @@ impl ApiServer {
                     self.insert_virblk(config.clone())
                         .context("Insert a virtio-blk device to the Dragonball")?;
                 }
+            }
+            Some("patch_fs") => {
+                let config_json = match v["config"].as_str() {
+                    Some(config_json) => config_json,
+                    None => return Err(anyhow!("The config of patch fs is required")),
+                };
+                let config: FsMountConfigInfo =
+                    serde_json::from_str(config_json).context("Parse patch fs config from json")?;
+                self.patch_fs(config)
+                    .context("Insert a patch fs to the Dragonball")?;
             }
             _ => {
                 println!("Unknown Actions");

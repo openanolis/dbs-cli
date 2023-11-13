@@ -22,6 +22,10 @@ pub fn run_api_client(args: DBSArgs) -> Result<()> {
         let request = request_virtio_blk(&config);
         send_request(request, &args.api_sock_path)?;
     }
+    if let Some(config) = args.update_args.patch_fs {
+        let request = request_patch_fs(&config);
+        send_request(request, &args.api_sock_path)?;
+    }
     Ok(())
 }
 
@@ -45,6 +49,13 @@ fn request_virtio_blk(virtio_blk_config: &str) -> Value {
     json!({
         "action": "insert_virblks",
         "config": virtio_blk_config,
+    })
+}
+
+fn request_patch_fs(patch_fs_config: &str) -> Value {
+    json!({
+        "action": "patch_fs",
+        "config": patch_fs_config,
     })
 }
 

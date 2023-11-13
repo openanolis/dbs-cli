@@ -9,6 +9,7 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, VmmAction, VmmActionError, VmmData, VmmRequest,
         VmmResponse, VsockDeviceConfigInfo,
     },
+    device_manager::fs_dev_mgr::{FsDeviceConfigInfo, FsMountConfigInfo},
     device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vcpu::VcpuResizeInfo,
     vm::VmConfigInfo,
@@ -143,6 +144,23 @@ pub trait VMMComm {
     fn insert_virblk(&self, blk_cfg: BlockDeviceConfigInfo) -> Result<()> {
         self.handle_request(Request::Sync(VmmAction::InsertBlockDevice(blk_cfg.clone())))
             .with_context(|| format!("Failed to insert virtio-blk device {:?}", blk_cfg))?;
+        Ok(())
+    }
+
+    fn insert_fs(&self, fs_cfg: FsDeviceConfigInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::InsertFsDevice(fs_cfg.clone())))
+            .with_context(|| format!("Failed to insert {} fs device {:?}", fs_cfg.mode, fs_cfg))?;
+        Ok(())
+    }
+
+    fn patch_fs(&self, cfg: FsMountConfigInfo) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::ManipulateFsBackendFs(cfg.clone())))
+            .with_context(|| {
+                format!(
+                    "Failed to {:?} backend {:?} at {} mount config {:?}",
+                    cfg.ops, cfg.fstype, cfg.mountpoint, cfg
+                )
+            })?;
         Ok(())
     }
 }
