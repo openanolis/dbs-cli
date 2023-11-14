@@ -3,23 +3,21 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-use std::sync::{Arc, Mutex};
-
 use std::io::prelude::*;
 use std::os::unix::net::{UnixListener, UnixStream};
+use std::sync::{Arc, Mutex};
 
 use anyhow::{anyhow, Context, Result};
+use crossbeam_channel::{Receiver, Sender};
+use dragonball::api::v1::{VmmRequest, VmmResponse};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
 use dragonball::device_manager::fs_dev_mgr::FsMountConfigInfo;
 use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
-
-use crate::vmm_comm_trait::VMMComm;
-use dragonball::api::v1::{VmmRequest, VmmResponse};
 use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
-
-use crossbeam_channel::{Receiver, Sender};
 use vmm_sys_util::eventfd::EventFd;
+
+use crate::vmm_comm_trait::VMMComm;
 
 pub struct ApiServer {
     pub to_vmm: Option<Sender<VmmRequest>>,
@@ -53,9 +51,9 @@ impl ApiServer {
         }
     }
 
-    pub fn run_api_server(&mut self, api_sock_path: &str) -> Result<()> {
+    pub fn run_api_server(&mut self, api_sock_path: String) -> Result<()> {
+        println!("dbs-cli: api server created in api_sock_path {:?}. Start waiting for connections from the client side.", &api_sock_path);
         let unix_listener = UnixListener::bind(api_sock_path)?;
-        println!("dbs-cli: api server created in api_sock_path {api_sock_path:?}. Start waiting for connections from the client side.");
 
         // put the server logic in a loop to accept several connections
         loop {

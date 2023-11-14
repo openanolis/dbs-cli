@@ -10,20 +10,18 @@ use std::{
 };
 
 use anyhow::Result;
-
-pub use args::Commands;
-pub use args::DBSArgs;
 use crossbeam_channel::unbounded;
 use dragonball::{api::v1::VmmService, Vmm};
 
 use crate::api_server::ApiServer;
 use crate::cli_instance::CliInstance;
+use crate::parser::args::CreateArgs;
 
 pub mod args;
 
 const KVM_DEVICE: &str = "/dev/kvm";
 
-pub fn run_with_cli(args: DBSArgs) -> Result<i32> {
+pub fn run_with_cli(create_args: CreateArgs, api_sock_path: &String) -> Result<i32> {
     let mut cli_instance = CliInstance::new("dbs-cli");
 
     let kvm = OpenOptions::new().read(true).write(true).open(KVM_DEVICE)?;
@@ -61,7 +59,7 @@ pub fn run_with_cli(args: DBSArgs) -> Result<i32> {
     );
 
     // clone the arguments for other thread to use
-    let clone_args = args.clone();
+    let clone_args = create_args.clone();
     thread::Builder::new()
         .name("set_cfg".to_owned())
         .spawn(move || {
@@ -71,15 +69,18 @@ pub fn run_with_cli(args: DBSArgs) -> Result<i32> {
         })
         .unwrap();
 
-    if !args.api_sock_path.is_empty() {
+    if !api_sock_path.is_empty() {
+        let clone_api_sock_path = api_sock_path.to_string().clone();
         thread::Builder::new()
             .name("api_server".to_owned())
             .spawn(move || {
                 api_server
-                    .run_api_server(&args.api_sock_path)
+                    .run_api_server(clone_api_sock_path)
                     .expect("Failed to api server.");
             })
             .unwrap();
+    } else {
+        println!("Warning: api server is not created because --api-sock-path is not provided when creating VM. Update command is not supported.");
     }
 
     Ok(Vmm::run_vmm_event_loop(

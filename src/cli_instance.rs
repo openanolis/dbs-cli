@@ -9,7 +9,7 @@ use std::{
     sync::{Arc, Mutex, RwLock},
 };
 
-use crate::vmm_comm_trait::VMMComm;
+use crate::{parser::args::CreateArgs, vmm_comm_trait::VMMComm};
 use anyhow::{anyhow, Result};
 use crossbeam_channel::{Receiver, Sender};
 use seccompiler::BpfProgram;
@@ -24,8 +24,6 @@ use dragonball::{
     device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vm::{CpuTopology, VmConfigInfo},
 };
-
-use crate::parser::DBSArgs;
 
 const DRAGONBALL_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -70,33 +68,33 @@ impl CliInstance {
         }
     }
 
-    pub fn run_vmm_server(&self, args: DBSArgs) -> Result<()> {
-        if args.boot_args.kernel_path.is_none() || args.boot_args.rootfs_args.rootfs.is_none() {
+    pub fn run_vmm_server(&self, args: CreateArgs) -> Result<()> {
+        if args.kernel_path.is_none() || args.rootfs_args.rootfs.is_none() {
             return Err(anyhow!(
                 "kernel path or rootfs path cannot be None when creating the VM"
             ));
         }
         let mut serial_path: Option<String> = None;
 
-        if args.create_args.serial_path != "stdio" {
-            serial_path = Some(args.create_args.serial_path);
+        if args.serial_path != "stdio" {
+            serial_path = Some(args.serial_path);
         }
 
         // configuration
         let vm_config = VmConfigInfo {
-            vcpu_count: args.create_args.vcpu,
-            max_vcpu_count: args.create_args.max_vcpu,
-            cpu_pm: args.create_args.cpu_pm.clone(),
+            vcpu_count: args.cpu.vcpu,
+            max_vcpu_count: args.cpu.max_vcpu,
+            cpu_pm: args.cpu.cpu_pm.clone(),
             cpu_topology: CpuTopology {
-                threads_per_core: args.create_args.cpu_topology.threads_per_core,
-                cores_per_die: args.create_args.cpu_topology.cores_per_die,
-                dies_per_socket: args.create_args.cpu_topology.dies_per_socket,
-                sockets: args.create_args.cpu_topology.sockets,
+                threads_per_core: args.cpu.cpu_topology.threads_per_core,
+                cores_per_die: args.cpu.cpu_topology.cores_per_die,
+                dies_per_socket: args.cpu.cpu_topology.dies_per_socket,
+                sockets: args.cpu.cpu_topology.sockets,
             },
-            vpmu_feature: args.create_args.vpmu_feature,
-            mem_type: args.create_args.mem_type.clone(),
-            mem_file_path: args.create_args.mem_file_path.clone(),
-            mem_size_mib: args.create_args.mem_size,
+            vpmu_feature: args.cpu.vpmu_feature,
+            mem_type: args.mem.mem_type.clone(),
+            mem_file_path: args.mem.mem_file_path.clone(),
+            mem_size_mib: args.mem.mem_size,
             // as in crate `dragonball` serial_path will be assigned with a default value,
             // we need a special token to enable the stdio console.
             serial_path: serial_path.clone(),
@@ -114,9 +112,9 @@ impl CliInstance {
         // boot source
         let boot_source_config = BootSourceConfig {
             // unwrap is safe because we have checked kernel_path in the beginning of run_vmm_server
-            kernel_path: args.boot_args.kernel_path.unwrap(),
-            initrd_path: args.boot_args.initrd_path.clone(),
-            boot_args: Some(args.boot_args.boot_args.clone()),
+            kernel_path: args.kernel_path.unwrap(),
+            initrd_path: args.initrd_path.clone(),
+            boot_args: Some(args.boot_args.clone()),
         };
 
         // rootfs
@@ -124,9 +122,9 @@ impl CliInstance {
         block_device_config_info = BlockDeviceConfigInfo {
             drive_id: String::from("rootfs"),
             // unwrap is safe because we have checked rootfs path in the beginning of run_vmm_server
-            path_on_host: PathBuf::from(&args.boot_args.rootfs_args.rootfs.unwrap()),
-            is_root_device: args.boot_args.rootfs_args.is_root,
-            is_read_only: args.boot_args.rootfs_args.is_read_only,
+            path_on_host: PathBuf::from(&args.rootfs_args.rootfs.unwrap()),
+            is_root_device: args.rootfs_args.is_root,
+            is_read_only: args.rootfs_args.is_read_only,
             ..block_device_config_info
         };
 
@@ -142,12 +140,12 @@ impl CliInstance {
         self.insert_block_device(block_device_config_info)
             .expect("failed to set block device");
 
-        if !args.create_args.vsock.is_empty() {
+        if !args.vsock.is_empty() {
             // VSOCK config
             let mut vsock_config_info = VsockDeviceConfigInfo::default();
             vsock_config_info = VsockDeviceConfigInfo {
                 guest_cid: 42, // dummy value
-                uds_path: Some(args.create_args.vsock),
+                uds_path: Some(args.vsock),
                 ..vsock_config_info
             };
 
@@ -156,28 +154,26 @@ impl CliInstance {
                 .expect("failed to set vsock socket path");
         }
 
-        if !args.create_args.virnets.is_empty() {
-            let configs: Vec<VirtioNetDeviceConfigInfo> =
-                serde_json::from_str(&args.create_args.virnets)
-                    .expect("failed to parse virtio-net devices from JSON");
+        if !args.virnets.is_empty() {
+            let configs: Vec<VirtioNetDeviceConfigInfo> = serde_json::from_str(&args.virnets)
+                .expect("failed to parse virtio-net devices from JSON");
             for config in configs.into_iter() {
                 self.insert_virnet(config)
                     .expect("failed to insert a virtio-net device");
             }
         }
 
-        if !args.create_args.virblks.is_empty() {
-            let configs: Vec<BlockDeviceConfigInfo> =
-                serde_json::from_str(&args.create_args.virblks)
-                    .expect("failed to parse virtio-blk devices from JSON");
+        if !args.virblks.is_empty() {
+            let configs: Vec<BlockDeviceConfigInfo> = serde_json::from_str(&args.virblks)
+                .expect("failed to parse virtio-blk devices from JSON");
             for config in configs.into_iter() {
                 self.insert_virblk(config)
                     .expect("failed to insert a virtio-blk device");
             }
         }
 
-        if !args.create_args.fs.is_empty() {
-            let fs_config: FsDeviceConfigInfo = serde_json::from_str(&args.create_args.fs)
+        if !args.fs.is_empty() {
+            let fs_config: FsDeviceConfigInfo = serde_json::from_str(&args.fs)
                 .expect("failed to parse virtio-fs devices from JSON");
             self.insert_fs(fs_config)
                 .expect("failed to insert a virtio-fs device");
