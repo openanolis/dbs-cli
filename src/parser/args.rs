@@ -148,9 +148,7 @@ pub struct CreateArgs {
         long,
         value_parser,
         default_value = "",
-        help = r#"Insert virtio-net devices into the Dragonball. 
-The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
-    --virnets '[{"iface_id":"eth0","host_dev_name":"tap0","num_queues":2,"queue_size":0,"allow_duplicate_mac":true}]'"#,
+        help = r#"Insert virtio devices into the Dragonball before launched. The supported devices are virtio-net and vhost-net."#,
         display_order = 2
     )]
     pub virnets: String,

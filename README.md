@@ -4,7 +4,7 @@
 > 
 > [[简体中文版]](README_zh.md)
 
-# 1. Examples:
+## Examples
 
 See all options:
 
@@ -12,7 +12,7 @@ See all options:
 ./dbs-cli --help
 ```
 
-A simple example:
+### Basic examples
 
 ```bash
 ./dbs-cli create \
@@ -68,20 +68,6 @@ Create a virtio-vsock tunnel for Guest-to-Host communication.
   --vsock /tmp/vsock.sock
 ```
 
-Create virtio-net devices.
-
-> The type of the `--virnets` receives an array of VirtioNetDeviceConfigInfo in the
-> format of JSON.
-
-```
-./dbs-cli create \
-  --log-file dbs-cli.log --log-level ERROR \
-  --kernel-path ~/path/to/kernel/vmlinux.bin \
-  --rootfs ~/path/to/rootfs/bionic.rootfs.ext4 \
-  --boot-args "console=ttyS0 console=ttyS1 earlyprintk=ttyS1 tty0 reboot=k debug panic=1 pci=off root=/dev/vda1" \
-  --virnets "[{\"iface_id\":\"eth0\",\"host_dev_name\":\"tap0\",\"num_queues\":2,\"queue_size\":0,\"guest_mac\":\"43:2D:9C:13:71:48\",\"allow_duplicate_mac\":true}]"
-```
-
 Create virtio-blk devices.
 
 > The type of the `--virblks` receives an array of BlockDeviceConfigInfo in the
@@ -96,9 +82,44 @@ Create virtio-blk devices.
   --virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]' 
 ```
 
-# 2. Usage
+### Networking
 
-## 1. Create API Server and Update VM
+Start a Dragonball VMM with a virtio-based network device. `--virnets`
+receives an array of `NetworkInterfaceConfig` in the format of JSON.
+
+```
+--virnets '[{"guest_mac":"43:2D:9C:13:71:48","backend":{"type":"vhost","iface_id":"eth0","host_dev_name":"tap0","allow_duplicate_mac":true}}]'
+```
+
+The supported network devices include:
+
+```
+// Virtio-net
+{
+	"guest_mac": "43:2D:9C:13:71:48",
+	"backend": {
+		"type": "virtio",
+		"iface_id": "eth0",
+		"host_dev_name": "tap0",
+		"allow_duplicate_mac": true
+	}
+}
+
+// Vhost-net
+{
+	"guest_mac": "43:2D:9C:13:71:48",
+	"backend": {
+		"type": "vhost",
+		"iface_id": "eth0",
+		"host_dev_name": "tap0",
+		"allow_duplicate_mac": true
+	}
+}
+```
+
+## Advanced Usage
+
+### Create API Server and Update VM
 
 An API Server could be created by adding `--api-sock-path [socket path]`  into dbs-cli creation command.
 
@@ -109,6 +130,8 @@ Cpu Hotplug via API Server:
 `sudo ./dbs-cli  --api-sock-path [socket path] update --vcpu-resize 2 `
 
 Create hot-plug virtio-net devices via API Server:
+
+**TODO: Needs to be updated**
 
 > The type of the `--hotplug-virnets` receives an array of
 > VirtioNetDeviceConfigInfo in the format of JSON.
@@ -132,11 +155,11 @@ sudo ./dbs-cli  \
 
 TODO : add document for hot-plug virtio-fs
 
-## 2. Exit vm
+### Exit VM
 
-> If you want to exit vm, just input `reboot` in vm's console.
+If you want to exit vm, just input `reboot` in vm's console.
 
-## 3. For developers
+### For developers
 
 If you wish to modify some details or debug to figure out the fault of codes, you can do as follow to see whether the program act expectedly or not.
 
@@ -152,7 +175,7 @@ To see some help:
 cargo run -- --help
 ```
 
-## 3. Some off-topic remarks
+### Some off-topic remarks
 
 Regarding the dependency issue of the upstream library, it is recommended to build the `build` target of Makefile to avoid it temporally.
 
@@ -162,6 +185,6 @@ make build
 
 If the self-defined `dragonball` dependency is supposed to be used, please refer to [dependency document](docs/dependency.md)
 
-# License
+## License
 
 `DBS-CLI` is licensed under [Apache License](http://www.apache.org/licenses/LICENSE-2.0), Version 2.0.

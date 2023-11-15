@@ -11,6 +11,7 @@ dragonball = { git = "https://github.com/kata-containers/kata-containers", branc
     "virtio-fs",
     "virtio-vsock",
     "virtio-net",
+    "vhost-net",
     "hotplug",
     "dbs-upcall",
 ] }

@@ -6,11 +6,10 @@ use std::sync::{Arc, Mutex};
 
 use dragonball::{
     api::v1::{
-        BlockDeviceConfigInfo, BootSourceConfig, VmmAction, VmmActionError, VmmData, VmmRequest,
-        VmmResponse, VsockDeviceConfigInfo,
+        BlockDeviceConfigInfo, BootSourceConfig, NetworkInterfaceConfig, VmmAction, VmmActionError,
+        VmmData, VmmRequest, VmmResponse, VsockDeviceConfigInfo,
     },
     device_manager::fs_dev_mgr::{FsDeviceConfigInfo, FsMountConfigInfo},
-    device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vcpu::VcpuResizeInfo,
     vm::VmConfigInfo,
 };
@@ -135,9 +134,9 @@ pub trait VMMComm {
         Ok(())
     }
 
-    fn insert_virnet(&self, config: VirtioNetDeviceConfigInfo) -> Result<()> {
+    fn insert_virnet(&self, config: NetworkInterfaceConfig) -> Result<()> {
         self.handle_request(Request::Sync(VmmAction::InsertNetworkDevice(config)))
-            .context("Request to insert a virtio-net device")?;
+            .context("Request to insert a virtio device")?;
         Ok(())
     }
 
