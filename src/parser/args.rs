@@ -12,18 +12,6 @@ pub struct DBSArgs {
     #[clap(subcommand)]
     pub command: Option<Commands>,
 
-    #[clap(flatten)]
-    pub create_args: CreateArgs,
-
-    #[clap(flatten)]
-    pub boot_args: BootArgs,
-
-    #[clap(long, value_parser, default_value = "dbs-cli.log", display_order = 1)]
-    pub log_file: String,
-
-    #[clap(long, value_parser, default_value = "Info", display_order = 1)]
-    pub log_level: String,
-
     #[clap(
         long,
         value_parser,
@@ -32,20 +20,25 @@ pub struct DBSArgs {
         display_order = 2
     )]
     pub api_sock_path: String,
-
-    #[clap(flatten)]
-    pub update_args: UpdateArgs,
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
     /// Create Dragonball Instance
-    Create,
+    Create {
+        // create args are for setting up Dragonball CPU/
+        #[clap(flatten)]
+        create_args: CreateArgs,
+    },
     /// Connect to Dragonball Api Server and update the Dragonball VM (Must create a api socket when creating the Dragonball VM)
-    Update,
+    Update {
+        #[clap(flatten)]
+        update_args: UpdateArgs,
+    },
 }
 
-/// CPU related configurations
+/// CPU topology related configurations
 #[derive(Args, Debug, Serialize, Deserialize, Clone)]
 pub struct CpuTopologyArgs {
     #[clap(
@@ -120,68 +113,12 @@ pub struct RootfsArgs {
 #[derive(Args, Debug, Deserialize, Serialize, Clone)]
 pub struct CreateArgs {
     /// features of cpu
-    #[clap(
-        short = 'C',
-        long,
-        value_parser,
-        default_value_t = 1,
-        help = "The number of vcpu to start",
-        display_order = 1
-    )]
-    pub vcpu: u8,
-    #[clap(
-        long,
-        value_parser,
-        default_value_t = 1,
-        help = "The max number of vpu can be added",
-        display_order = 1
-    )]
-    pub max_vcpu: u8,
-    #[clap(
-        long,
-        value_parser,
-        default_value = "on",
-        help = "The cpu power management",
-        display_order = 1
-    )]
-    pub cpu_pm: String,
-    #[clap(
-        long,
-        value_parser,
-        default_value_t = 0,
-        help = "vpmu support level",
-        display_order = 1
-    )]
-    pub vpmu_feature: u8,
     #[clap(flatten)]
-    pub cpu_topology: CpuTopologyArgs,
+    pub cpu: CpuArgs,
 
     /// features of mem
-    #[clap(
-        long,
-        value_parser,
-        default_value = "shmem",
-        help = "Memory type that can be either hugetlbfs or shmem, default is shmem",
-        display_order = 2
-    )]
-    pub mem_type: String,
-    #[clap(
-        long,
-        value_parser,
-        default_value = "",
-        help = "Memory file path",
-        display_order = 2
-    )]
-    pub mem_file_path: String,
-    #[clap(
-        short,
-        long,
-        value_parser,
-        default_value_t = 128,
-        help = "The memory size in Mib",
-        display_order = 2
-    )]
-    pub mem_size: usize,
+    #[clap(flatten)]
+    pub mem: MemArgs,
 
     // The serial path used to communicate with VM
     #[clap(
@@ -237,12 +174,14 @@ The type of it is an array of BlockDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub fs: String,
-}
 
-/// Config boot source including rootfs file path
-#[derive(Args, Debug, Deserialize, Serialize, Clone)]
-#[clap(arg_required_else_help = true)]
-pub struct BootArgs {
+    // feature for log
+    #[clap(long, value_parser, default_value = "dbs-cli.log", display_order = 1)]
+    pub log_file: String,
+
+    #[clap(long, value_parser, default_value = "Debug", display_order = 1)]
+    pub log_level: String,
+
     #[clap(
         short,
         long,
@@ -278,6 +217,74 @@ pub struct BootArgs {
 }
 
 #[derive(Args, Debug, Serialize, Deserialize, Clone)]
+pub struct CpuArgs {
+    #[clap(
+        short = 'C',
+        long,
+        value_parser,
+        default_value_t = 1,
+        help = "The number of vcpu to start",
+        display_order = 1
+    )]
+    pub vcpu: u8,
+    #[clap(
+        long,
+        value_parser,
+        default_value_t = 1,
+        help = "The max number of vpu can be added",
+        display_order = 1
+    )]
+    pub max_vcpu: u8,
+    #[clap(
+        long,
+        value_parser,
+        default_value = "on",
+        help = "The cpu power management",
+        display_order = 1
+    )]
+    pub cpu_pm: String,
+    #[clap(
+        long,
+        value_parser,
+        default_value_t = 0,
+        help = "vpmu support level",
+        display_order = 1
+    )]
+    pub vpmu_feature: u8,
+    #[clap(flatten)]
+    pub cpu_topology: CpuTopologyArgs,
+}
+
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
+pub struct MemArgs {
+    #[clap(
+        long,
+        value_parser,
+        default_value = "shmem",
+        help = "Memory type that can be either hugetlbfs or shmem, default is shmem",
+        display_order = 2
+    )]
+    pub mem_type: String,
+    #[clap(
+        long,
+        value_parser,
+        default_value = "",
+        help = "Memory file path",
+        display_order = 2
+    )]
+    pub mem_file_path: String,
+    #[clap(
+        short,
+        long,
+        value_parser,
+        default_value_t = 128,
+        help = "The memory size in Mib",
+        display_order = 2
+    )]
+    pub mem_size: usize,
+}
+
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
 pub struct UpdateArgs {
     #[clap(
         long,
@@ -292,20 +299,20 @@ pub struct UpdateArgs {
         value_parser,
         help = r#"Insert hotplug virtio-net devices into the Dragonball. 
 The type of it is an array of VirtioNetDeviceConfigInfo, e.g.
-    --hotplug-virnets '[{"iface_id":"eth0","host_dev_name":"tap0","num_queues":2,"queue_size":0,"allow_duplicate_mac":true}]'"#,
+    --virnets '[{"iface_id":"eth0","host_dev_name":"tap0","num_queues":2,"queue_size":0,"allow_duplicate_mac":true}]'"#,
         display_order = 2
     )]
-    pub hotplug_virnets: Option<String>,
+    pub virnets: Option<String>,
 
     #[clap(
         long,
         value_parser,
         help = r#"Insert virtio-blk devices into the Dragonball.
 The type of it is an array of BlockDeviceConfigInfo, e.g.
-    --hotplug-virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]'"#,
+    --virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]'"#,
         display_order = 2
     )]
-    pub hotplug_virblks: Option<String>,
+    pub virblks: Option<String>,
 
     #[clap(
         long,

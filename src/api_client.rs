@@ -7,24 +7,24 @@ use std::os::unix::net::UnixStream;
 use anyhow::{Context, Result};
 use serde_json::{json, Value};
 
-use crate::parser::DBSArgs;
+use crate::parser::args::UpdateArgs;
 
-pub fn run_api_client(args: DBSArgs) -> Result<()> {
-    if let Some(vcpu_resize_num) = args.update_args.vcpu_resize {
+pub fn run_api_client(args: UpdateArgs, api_sock_path: &str) -> Result<()> {
+    if let Some(vcpu_resize_num) = args.vcpu_resize {
         let request = request_cpu_resize(vcpu_resize_num);
-        send_request(request, &args.api_sock_path)?;
+        send_request(request, api_sock_path)?;
     }
-    if let Some(config) = args.update_args.hotplug_virnets {
+    if let Some(config) = args.virnets {
         let request = request_virtio_net(&config);
-        send_request(request, &args.api_sock_path)?;
+        send_request(request, api_sock_path)?;
     }
-    if let Some(config) = args.update_args.hotplug_virblks {
+    if let Some(config) = args.virblks {
         let request = request_virtio_blk(&config);
-        send_request(request, &args.api_sock_path)?;
+        send_request(request, api_sock_path)?;
     }
-    if let Some(config) = args.update_args.patch_fs {
+    if let Some(config) = args.patch_fs {
         let request = request_patch_fs(&config);
-        send_request(request, &args.api_sock_path)?;
+        send_request(request, api_sock_path)?;
     }
     Ok(())
 }
