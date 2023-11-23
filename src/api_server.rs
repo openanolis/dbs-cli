@@ -16,6 +16,7 @@ use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 use vmm_sys_util::eventfd::EventFd;
 
+use crate::utils;
 use crate::vmm_comm_trait::VMMComm;
 
 pub struct ApiServer {
@@ -87,8 +88,12 @@ impl ApiServer {
                 let configs: Vec<NetworkInterfaceConfig> = serde_json::from_str(config_json)
                     .context("Parse NetworkInterfaceConfig from JSON")?;
                 for config in configs.iter() {
-                    self.insert_virnet(config.clone())
-                        .context("Insert a virtio device to the Dragonball")?;
+                    self.insert_virnet(config.clone()).with_context(|| {
+                        format!(
+                            "Insert a {} device to the Dragonball",
+                            utils::net_device_name(config)
+                        )
+                    })?;
                 }
             }
             Some("insert_virblks") => {

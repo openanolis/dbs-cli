@@ -1,18 +1,17 @@
-use crossbeam_channel::{Receiver, Sender};
-use vmm_sys_util::eventfd::EventFd;
-
-use anyhow::{anyhow, Context, Result};
 use std::sync::{Arc, Mutex};
 
-use dragonball::{
-    api::v1::{
-        BlockDeviceConfigInfo, BootSourceConfig, NetworkInterfaceConfig, VmmAction, VmmActionError,
-        VmmData, VmmRequest, VmmResponse, VsockDeviceConfigInfo,
-    },
-    device_manager::fs_dev_mgr::{FsDeviceConfigInfo, FsMountConfigInfo},
-    vcpu::VcpuResizeInfo,
-    vm::VmConfigInfo,
+use anyhow::{anyhow, Context, Result};
+use crossbeam_channel::{Receiver, Sender};
+use dragonball::api::v1::{
+    BlockDeviceConfigInfo, BootSourceConfig, NetworkInterfaceConfig, VmmAction, VmmActionError,
+    VmmData, VmmRequest, VmmResponse, VsockDeviceConfigInfo,
 };
+use dragonball::device_manager::fs_dev_mgr::{FsDeviceConfigInfo, FsMountConfigInfo};
+use dragonball::vcpu::VcpuResizeInfo;
+use dragonball::vm::VmConfigInfo;
+use vmm_sys_util::eventfd::EventFd;
+
+use crate::utils;
 
 pub enum Request {
     Sync(VmmAction),
@@ -135,8 +134,15 @@ pub trait VMMComm {
     }
 
     fn insert_virnet(&self, config: NetworkInterfaceConfig) -> Result<()> {
-        self.handle_request(Request::Sync(VmmAction::InsertNetworkDevice(config)))
-            .context("Request to insert a virtio device")?;
+        self.handle_request(Request::Sync(VmmAction::InsertNetworkDevice(
+            config.clone(),
+        )))
+        .with_context(|| {
+            format!(
+                "Request to insert a {} device",
+                utils::net_device_name(&config)
+            )
+        })?;
         Ok(())
     }
 
