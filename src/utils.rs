@@ -1,3 +1,4 @@
+use dragonball::api::v1::NetworkInterfaceConfig;
 use slog::Drain;
 use slog::*;
 use slog_scope::set_global_logger;
@@ -24,4 +25,17 @@ pub fn setup_db_log(log_file_path: &String, log_level: &str) {
     let guard = set_global_logger(root);
     guard.cancel_reset();
     slog_stdlog::init().unwrap();
+}
+
+#[inline]
+/// Get net device name from `NetworkInterfaceConfig`.
+pub(crate) fn net_device_name(config: &NetworkInterfaceConfig) -> String {
+    match &config.backend {
+        dragonball::api::v1::Backend::Virtio(config) => {
+            format!("virtio-net({})", config.host_dev_name)
+        }
+        dragonball::api::v1::Backend::Vhost(config) => {
+            format!("vhost-net({})", config.host_dev_name)
+        }
+    }
 }

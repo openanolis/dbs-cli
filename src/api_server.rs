@@ -9,14 +9,14 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::{anyhow, Context, Result};
 use crossbeam_channel::{Receiver, Sender};
-use dragonball::api::v1::{VmmRequest, VmmResponse};
+use dragonball::api::v1::{NetworkInterfaceConfig, VmmRequest, VmmResponse};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
 use dragonball::device_manager::fs_dev_mgr::FsMountConfigInfo;
-use dragonball::device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo;
 use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 use vmm_sys_util::eventfd::EventFd;
 
+use crate::utils;
 use crate::vmm_comm_trait::VMMComm;
 
 pub struct ApiServer {
@@ -85,11 +85,15 @@ impl ApiServer {
                     Some(config_json) => config_json,
                     None => return Err(anyhow!("The config of virtio-net device is required")),
                 };
-                let configs: Vec<VirtioNetDeviceConfigInfo> = serde_json::from_str(config_json)
-                    .context("Parse virtio-net device config from json")?;
+                let configs: Vec<NetworkInterfaceConfig> = serde_json::from_str(config_json)
+                    .context("Parse NetworkInterfaceConfig from JSON")?;
                 for config in configs.iter() {
-                    self.insert_virnet(config.clone())
-                        .context("Insert a virtio-net device to the Dragonball")?;
+                    self.insert_virnet(config.clone()).with_context(|| {
+                        format!(
+                            "Insert a {} device to the Dragonball",
+                            utils::net_device_name(config)
+                        )
+                    })?;
                 }
             }
             Some("insert_virblks") => {

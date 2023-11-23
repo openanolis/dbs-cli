@@ -36,11 +36,11 @@ fn request_cpu_resize(vcpu_resize_num: usize) -> Value {
     })
 }
 
-/// Insert virtio-net devices
-fn request_virtio_net(virtio_net_config: &str) -> Value {
+/// Insert virtio network devices
+fn request_virtio_net(net_config: &str) -> Value {
     json!({
         "action": "insert_virnets",
-        "config": virtio_net_config,
+        "config": net_config,
     })
 }
 

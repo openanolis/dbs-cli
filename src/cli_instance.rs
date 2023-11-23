@@ -17,11 +17,10 @@ use vmm_sys_util::eventfd::EventFd;
 
 use dragonball::{
     api::v1::{
-        BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, VmmRequest, VmmResponse,
-        VsockDeviceConfigInfo,
+        BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, NetworkInterfaceConfig, VmmRequest,
+        VmmResponse, VsockDeviceConfigInfo,
     },
     device_manager::fs_dev_mgr::FsDeviceConfigInfo,
-    device_manager::virtio_net_dev_mgr::VirtioNetDeviceConfigInfo,
     vm::{CpuTopology, VmConfigInfo},
 };
 
@@ -154,12 +153,15 @@ impl CliInstance {
                 .expect("failed to set vsock socket path");
         }
 
+        // Virtio devices
         if !args.virnets.is_empty() {
-            let configs: Vec<VirtioNetDeviceConfigInfo> = serde_json::from_str(&args.virnets)
-                .expect("failed to parse virtio-net devices from JSON");
+            let configs: Vec<NetworkInterfaceConfig> = serde_json::from_str(&args.virnets)
+                .unwrap_or_else(|err| {
+                    panic!("Failed to parse NetworkInterfaceConfig from JSON: {}", err)
+                });
             for config in configs.into_iter() {
                 self.insert_virnet(config)
-                    .expect("failed to insert a virtio-net device");
+                    .expect("Failed to insert a virtio device");
             }
         }
 
