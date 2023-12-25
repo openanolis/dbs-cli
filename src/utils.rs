@@ -37,5 +37,8 @@ pub(crate) fn net_device_name(config: &NetworkInterfaceConfig) -> String {
         dragonball::api::v1::Backend::Vhost(config) => {
             format!("vhost-net({})", config.host_dev_name)
         }
+        dragonball::api::v1::Backend::VhostUser(config) => {
+            format!("vhost-user-net({})", config.sock_path)
+        }
     }
 }

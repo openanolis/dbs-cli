@@ -280,7 +280,7 @@ dependencies = [
 [[package]]
 name = "dbs-address-space"
 version = "0.3.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "arc-swap",
  "lazy_static",
@@ -294,7 +294,7 @@ dependencies = [
 [[package]]
 name = "dbs-allocator"
 version = "0.1.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "thiserror",
 ]
@@ -302,7 +302,7 @@ dependencies = [
 [[package]]
 name = "dbs-arch"
 version = "0.2.3"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "kvm-bindings",
  "kvm-ioctls",
@@ -316,7 +316,7 @@ dependencies = [
 [[package]]
 name = "dbs-boot"
 version = "0.4.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-arch",
  "kvm-bindings",
@@ -357,7 +357,7 @@ dependencies = [
 [[package]]
 name = "dbs-device"
 version = "0.2.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "thiserror",
 ]
@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "dbs-interrupt"
 version = "0.2.2"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-arch",
  "dbs-device",
@@ -378,7 +378,7 @@ dependencies = [
 [[package]]
 name = "dbs-legacy-devices"
 version = "0.1.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-device",
  "dbs-utils",
@@ -392,7 +392,7 @@ dependencies = [
 [[package]]
 name = "dbs-upcall"
 version = "0.3.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "dbs-utils",
@@ -405,7 +405,7 @@ dependencies = [
 [[package]]
 name = "dbs-utils"
 version = "0.2.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "event-manager",
@@ -420,10 +420,12 @@ dependencies = [
 [[package]]
 name = "dbs-virtio-devices"
 version = "0.3.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "byteorder",
  "caps",
+ "dbs-address-space",
+ "dbs-boot",
  "dbs-device",
  "dbs-interrupt",
  "dbs-utils",
@@ -497,7 +499,7 @@ dependencies = [
 [[package]]
 name = "dragonball"
 version = "0.1.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#f18794d88079840a48c5080221563377142a3339"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -2245,9 +2247,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7daec296f25a1bae309c0cd5c29c4b260e510e6d813c286b19eaadf409d40fce"
+checksum = "0ed0d4f68a3015cc185aff4db9506a015f4b96f95303897bfa23f846db54064e"
 dependencies = [
  "cfg-if",
  "wasm-bindgen-macro",
@@ -2255,9 +2257,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e397f4664c0e4e428e8313a469aaa58310d302159845980fd23b0f22a847f217"
+checksum = "1b56f625e64f3a1084ded111c4d5f477df9f8c92df113852fa5a374dbda78826"
 dependencies = [
  "bumpalo",
  "log",
@@ -2282,9 +2284,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5961017b3b08ad5f3fe39f1e79877f8ee7c23c5e5fd5eb80de95abc41f1f16b2"
+checksum = "0162dbf37223cd2afce98f3d0785506dcb8d266223983e4b5b525859e6e182b2"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -2292,9 +2294,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5353b8dab669f5e10f5bd76df26a9360c748f054f862ff5f3f8aae0c7fb3907"
+checksum = "f0eb82fcb7930ae6219a7ecfd55b217f5f0893484b7a13022ebb2b2bf20b5283"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2305,9 +2307,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d046c5d029ba91a1ed14da14dca44b68bf2f124cfbaf741c54151fdb3e0750b"
+checksum = "7ab9b36309365056cd639da3134bf87fa8f3d86008abf99e612384a6eecd459f"
 
 [[package]]
 name = "web-sys"
