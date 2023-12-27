@@ -120,6 +120,10 @@ pub struct CreateArgs {
     #[clap(flatten)]
     pub mem: MemArgs,
 
+    /// features of host devices
+    #[clap(flatten)]
+    pub host_device: HostDeviceArgs,
+
     // The serial path used to communicate with VM
     #[clap(
         short,
@@ -280,6 +284,30 @@ pub struct MemArgs {
         display_order = 2
     )]
     pub mem_size: usize,
+}
+
+#[derive(Args, Debug, Serialize, Deserialize, Clone)]
+pub struct HostDeviceArgs {
+    #[clap(
+        long,
+        value_parser,
+        help = "whether pci hotplug ability is enabled or not",
+        default_value_t = false,
+        display_order = 2
+    )]
+    pub pci_hotplug_enabled: bool,
+    #[clap(long, value_parser, help = "host dev id", display_order = 2)]
+    pub hostdev_id: Option<String>,
+    #[clap(long, value_parser, help = "sys fs path", display_order = 2)]
+    pub sysfs_path: Option<String>,
+    #[clap(long, value_parser, help = "bus slot function", display_order = 2)]
+    pub bus_slot_func: Option<String>,
+    #[clap(long, value_parser, help = "vendor_device_id", display_order = 2)]
+    pub vendor_device_id: Option<u32>,
+    #[clap(long, value_parser, help = "guest_dev_id", display_order = 2)]
+    pub guest_dev_id: Option<u8>,
+    #[clap(long, value_parser, help = "clique_id", display_order = 2)]
+    pub clique_id: Option<u8>,
 }
 
 #[derive(Args, Debug, Serialize, Deserialize, Clone)]

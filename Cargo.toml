@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dragonball = { git = "https://github.com/kata-containers/kata-containers", branch = "main", features = [
+dragonball = { path = "/root/kata-containers/src/dragonball", features = [
     "virtio-blk",
     "virtio-fs",
     "virtio-vsock",
@@ -15,6 +15,7 @@ dragonball = { git = "https://github.com/kata-containers/kata-containers", branc
     "hotplug",
     "dbs-upcall",
     "vhost-user-net",
+    "vhost-user-net"
 ] }
 clap = { version = "4.0.27", features = ["derive"] }
 serde = "1.0.27"

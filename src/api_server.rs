@@ -12,6 +12,7 @@ use crossbeam_channel::{Receiver, Sender};
 use dragonball::api::v1::{NetworkInterfaceConfig, VmmRequest, VmmResponse};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
 use dragonball::device_manager::fs_dev_mgr::FsMountConfigInfo;
+use dragonball::device_manager::vfio_dev_mgr::{HostDeviceConfig, VfioPciDeviceConfig};
 use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 use vmm_sys_util::eventfd::EventFd;
@@ -79,6 +80,23 @@ impl ApiServer {
                     vcpu_count: v["vcpu_count"].as_u64().map(|count| count as u8),
                 };
                 return self.resize_vcpu(resize_vcpu_cfg);
+            }
+            Some("insert_host_device") => {
+                let host_device_config = HostDeviceConfig {
+                    hostdev_id: v["hostdev_id"].as_str().unwrap().to_owned(),
+                    sysfs_path: v["sysfs_path"].as_str().unwrap().to_owned(),
+                    dev_config: VfioPciDeviceConfig {
+                        bus_slot_func: v["bus_slot_func"].as_str().unwrap().to_owned(),
+                        vendor_device_id: v["vendor_device_id"]
+                            .as_u64()
+                            .map(|vendor_device_id: u64| vendor_device_id as u32)
+                            .unwrap(),
+                        guest_dev_id: None,
+                        clique_id: None,
+                    },
+                };
+                self.insert_host_device(host_device_config)
+                    .expect("Failed to insert a host device");
             }
             Some("insert_virnets") => {
                 let config_json = match v["config"].as_str() {

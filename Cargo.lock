@@ -280,7 +280,6 @@ dependencies = [
 [[package]]
 name = "dbs-address-space"
 version = "0.3.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "arc-swap",
  "lazy_static",
@@ -294,7 +293,6 @@ dependencies = [
 [[package]]
 name = "dbs-allocator"
 version = "0.1.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "thiserror",
 ]
@@ -302,7 +300,6 @@ dependencies = [
 [[package]]
 name = "dbs-arch"
 version = "0.2.3"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "kvm-bindings",
  "kvm-ioctls",
@@ -316,7 +313,6 @@ dependencies = [
 [[package]]
 name = "dbs-boot"
 version = "0.4.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-arch",
  "kvm-bindings",
@@ -357,15 +353,14 @@ dependencies = [
 [[package]]
 name = "dbs-device"
 version = "0.2.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
+ "downcast-rs",
  "thiserror",
 ]
 
 [[package]]
 name = "dbs-interrupt"
 version = "0.2.2"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-arch",
  "dbs-device",
@@ -378,7 +373,6 @@ dependencies = [
 [[package]]
 name = "dbs-legacy-devices"
 version = "0.1.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "dbs-device",
  "dbs-utils",
@@ -392,7 +386,6 @@ dependencies = [
 [[package]]
 name = "dbs-upcall"
 version = "0.3.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "dbs-utils",
@@ -405,7 +398,6 @@ dependencies = [
 [[package]]
 name = "dbs-utils"
 version = "0.2.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "event-manager",
@@ -420,7 +412,6 @@ dependencies = [
 [[package]]
 name = "dbs-virtio-devices"
 version = "0.3.1"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "byteorder",
  "caps",
@@ -446,6 +437,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "threadpool",
+ "timerfd",
  "vhost",
  "virtio-bindings",
  "virtio-queue",
@@ -497,9 +489,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "downcast-rs"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
 name = "dragonball"
 version = "0.1.0"
-source = "git+https://github.com/kata-containers/kata-containers?branch=main#38eb4077a6d0964834c9ea76d8609b01918198f3"
 dependencies = [
  "anyhow",
  "arc-swap",

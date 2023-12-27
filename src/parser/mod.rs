@@ -83,6 +83,8 @@ pub fn run_with_cli(create_args: CreateArgs, api_sock_path: &String) -> Result<i
         println!("Warning: api server is not created because --api-sock-path is not provided when creating VM. Update command is not supported.");
     }
 
+    println!("[CHAOTEST] hit here");
+
     Ok(Vmm::run_vmm_event_loop(
         Arc::new(Mutex::new(vmm)),
         vmm_service,

@@ -20,7 +20,10 @@ use dragonball::{
         BlockDeviceConfigInfo, BootSourceConfig, InstanceInfo, NetworkInterfaceConfig, VmmRequest,
         VmmResponse, VsockDeviceConfigInfo,
     },
-    device_manager::fs_dev_mgr::FsDeviceConfigInfo,
+    device_manager::{
+        fs_dev_mgr::FsDeviceConfigInfo,
+        vfio_dev_mgr::{HostDeviceConfig, VfioPciDeviceConfig},
+    },
     vm::{CpuTopology, VmConfigInfo},
 };
 
@@ -97,6 +100,7 @@ impl CliInstance {
             // as in crate `dragonball` serial_path will be assigned with a default value,
             // we need a special token to enable the stdio console.
             serial_path: serial_path.clone(),
+            pci_hotplug_enabled: args.host_device.pci_hotplug_enabled,
         };
 
         if let Some(com1_sock_path) = serial_path {
@@ -153,6 +157,31 @@ impl CliInstance {
                 .expect("failed to set vsock socket path");
         }
 
+        if !args.host_device.hostdev_id.is_none() {
+            let host_device_config =
+                HostDeviceConfig {
+                    hostdev_id: args
+                        .host_device
+                        .hostdev_id
+                        .expect("There has to be hostdev_id if you want to add host device."),
+                    sysfs_path: args
+                        .host_device
+                        .sysfs_path
+                        .expect("There has to be sysfs_path if you want to add host device."),
+                    dev_config: VfioPciDeviceConfig {
+                        bus_slot_func: args.host_device.bus_slot_func.expect(
+                            "There has to be bus_slot_func if you want to add host device.",
+                        ),
+                        vendor_device_id: args.host_device.vendor_device_id.expect(
+                            "There has to be vendor_device_id if you want to add host device.",
+                        ),
+                        guest_dev_id: args.host_device.guest_dev_id,
+                        clique_id: args.host_device.clique_id,
+                    },
+                };
+            self.insert_host_device(host_device_config)
+                .expect("Failed to insert a host device");
+        }
         // Virtio devices
         if !args.virnets.is_empty() {
             let configs: Vec<NetworkInterfaceConfig> = serde_json::from_str(&args.virnets)
