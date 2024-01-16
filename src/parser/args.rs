@@ -347,4 +347,23 @@ The type of it is an array of BlockDeviceConfigInfo, e.g.
         display_order = 2
     )]
     pub patch_fs: Option<String>,
+
+    #[clap(flatten)]
+    pub insert_host_device: Option<HostDeviceArgs>,
+
+    #[clap(
+        long,
+        value_parser,
+        help = r#"prepare remove host device with hostdev_id."#,
+        display_order = 2
+    )]
+    pub prepare_remove_host_device: Option<String>,
+
+    #[clap(
+        long,
+        value_parser,
+        help = r#"remove host device with hostdev_id."#,
+        display_order = 2
+    )]
+    pub remove_host_device: Option<String>,
 }

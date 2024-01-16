@@ -280,6 +280,7 @@ dependencies = [
 [[package]]
 name = "dbs-address-space"
 version = "0.3.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "arc-swap",
  "lazy_static",
@@ -293,6 +294,7 @@ dependencies = [
 [[package]]
 name = "dbs-allocator"
 version = "0.1.1"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "thiserror",
 ]
@@ -300,6 +302,7 @@ dependencies = [
 [[package]]
 name = "dbs-arch"
 version = "0.2.3"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "kvm-bindings",
  "kvm-ioctls",
@@ -313,6 +316,7 @@ dependencies = [
 [[package]]
 name = "dbs-boot"
 version = "0.4.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "dbs-arch",
  "kvm-bindings",
@@ -353,14 +357,15 @@ dependencies = [
 [[package]]
 name = "dbs-device"
 version = "0.2.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
- "downcast-rs",
  "thiserror",
 ]
 
 [[package]]
 name = "dbs-interrupt"
 version = "0.2.2"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "dbs-arch",
  "dbs-device",
@@ -373,6 +378,7 @@ dependencies = [
 [[package]]
 name = "dbs-legacy-devices"
 version = "0.1.1"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "dbs-device",
  "dbs-utils",
@@ -384,8 +390,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "dbs-pci"
+version = "0.1.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
+dependencies = [
+ "byteorder",
+ "dbs-allocator",
+ "dbs-boot",
+ "dbs-device",
+ "dbs-interrupt",
+ "downcast-rs",
+ "kvm-bindings",
+ "kvm-ioctls",
+ "libc",
+ "log",
+ "thiserror",
+ "vfio-bindings",
+ "vfio-ioctls",
+ "vm-memory",
+]
+
+[[package]]
 name = "dbs-upcall"
 version = "0.3.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "anyhow",
  "dbs-utils",
@@ -398,6 +426,7 @@ dependencies = [
 [[package]]
 name = "dbs-utils"
 version = "0.2.1"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "anyhow",
  "event-manager",
@@ -412,6 +441,7 @@ dependencies = [
 [[package]]
 name = "dbs-virtio-devices"
 version = "0.3.1"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "byteorder",
  "caps",
@@ -497,6 +527,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 [[package]]
 name = "dragonball"
 version = "0.1.0"
+source = "git+https://github.com/kata-containers/kata-containers?branch=main#37a4049d0fb6c72b2839431bbbaf0d32eda6837a"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -509,6 +540,7 @@ dependencies = [
  "dbs-device",
  "dbs-interrupt",
  "dbs-legacy-devices",
+ "dbs-pci",
  "dbs-upcall",
  "dbs-utils",
  "dbs-virtio-devices",
@@ -531,6 +563,8 @@ dependencies = [
  "slog-scope",
  "thiserror",
  "tracing",
+ "vfio-bindings",
+ "vfio-ioctls",
  "virtio-queue",
  "vm-memory",
  "vmm-sys-util",
@@ -554,6 +588,12 @@ dependencies = [
  "bitflags 1.3.2",
  "libc",
 ]
+
+[[package]]
+name = "equivalent"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "errno"
@@ -746,9 +786,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.3.21"
+version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91fc23aa11be92976ef4729127f1a74adf36d8436f7816b185d18df956790833"
+checksum = "bb2c4422095b67ee78da96fbb51a4cc413b3b25883c7717ff7ca1ab31022c9c9"
 dependencies = [
  "bytes",
  "fnv",
@@ -765,9 +805,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.12.3"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
+checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
 
 [[package]]
 name = "heck"
@@ -920,11 +960,11 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "1.9.3"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
+checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
- "autocfg",
+ "equivalent",
  "hashbrown",
 ]
 
@@ -2163,6 +2203,29 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
+
+[[package]]
+name = "vfio-bindings"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43449b404c488f70507dca193debd4bea361fe8089869b947adc19720e464bce"
+
+[[package]]
+name = "vfio-ioctls"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "068bac78842164a8ecc1d1a84a8d8a9168ab29fa3c96942689e286a30ae22ac4"
+dependencies = [
+ "byteorder",
+ "kvm-bindings",
+ "kvm-ioctls",
+ "libc",
+ "log",
+ "thiserror",
+ "vfio-bindings",
+ "vm-memory",
+ "vmm-sys-util",
+]
 
 [[package]]
 name = "vhost"

@@ -180,4 +180,20 @@ pub trait VMMComm {
             })?;
         Ok(())
     }
+
+    fn prepare_remove_host_device(&self, hostdev_id: String) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::PrepareRemoveHostDevice(
+            hostdev_id.clone(),
+        )))
+        .with_context(|| format!("Failed to prepare remove host device {:?}", hostdev_id))?;
+        Ok(())
+    }
+
+    fn remove_host_device(&self, hostdev_id: String) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::RemoveHostDevice(
+            hostdev_id.clone(),
+        )))
+        .with_context(|| format!("Failed to remove host device {:?}", hostdev_id))?;
+        Ok(())
+    }
 }

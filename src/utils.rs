@@ -25,7 +25,6 @@ pub fn setup_db_log(log_file_path: &String, log_level: &str) {
     let guard = set_global_logger(root);
     guard.cancel_reset();
     slog_stdlog::init().unwrap();
-    println!("[CHAOTEST]successful!");
 }
 
 #[inline]

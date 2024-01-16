@@ -157,28 +157,24 @@ impl CliInstance {
                 .expect("failed to set vsock socket path");
         }
 
-        if !args.host_device.hostdev_id.is_none() {
-            let host_device_config =
-                HostDeviceConfig {
-                    hostdev_id: args
+        // users should at least provide hostdev_id and bus_slot_func to insert a host device
+        if args.host_device.hostdev_id.is_some() && args.host_device.bus_slot_func.is_some() {
+            let host_device_config = HostDeviceConfig {
+                hostdev_id: args
+                    .host_device
+                    .hostdev_id
+                    .expect("There has to be hostdev_id if you want to add host device."),
+                sysfs_path: args.host_device.sysfs_path.unwrap_or_default(),
+                dev_config: VfioPciDeviceConfig {
+                    bus_slot_func: args
                         .host_device
-                        .hostdev_id
-                        .expect("There has to be hostdev_id if you want to add host device."),
-                    sysfs_path: args
-                        .host_device
-                        .sysfs_path
-                        .expect("There has to be sysfs_path if you want to add host device."),
-                    dev_config: VfioPciDeviceConfig {
-                        bus_slot_func: args.host_device.bus_slot_func.expect(
-                            "There has to be bus_slot_func if you want to add host device.",
-                        ),
-                        vendor_device_id: args.host_device.vendor_device_id.expect(
-                            "There has to be vendor_device_id if you want to add host device.",
-                        ),
-                        guest_dev_id: args.host_device.guest_dev_id,
-                        clique_id: args.host_device.clique_id,
-                    },
-                };
+                        .bus_slot_func
+                        .expect("There has to be bus_slot_func if you want to add host device."),
+                    vendor_device_id: args.host_device.vendor_device_id.unwrap_or_default(),
+                    guest_dev_id: args.host_device.guest_dev_id,
+                    clique_id: args.host_device.clique_id,
+                },
+            };
             self.insert_host_device(host_device_config)
                 .expect("Failed to insert a host device");
         }
