@@ -117,6 +117,30 @@ The supported network devices include:
 }
 ```
 
+### PCI Device
+
+You can choose to attach a pci device during the boot time of Dragonball. 
+Please note that hostdev_id and bus_slot_func are the must parameters for attaching pci device.  
+Please make sure that pci device is binded to `vfio-pci` driver.
+
+```
+./dbs-cli create --kernel-path $KERNEL_PATH --rootfs $ROOTFS_PATH --boot-args "console=ttyS0 tty0 reboot=k debug panic=1 root=/dev/vda1" --hostdev-id $HOST_DEVICE_ID --bus-slot-func $BUS_SLOT_FUNC
+```
+
+#### How to get hostdev_id and bus_slot_func?
+
+hostdev_id: This is an id you pick for each pci device attaching into VM. So name it whatever number you want.
+
+bus_slot_func: take a network device as the example, you could use `lspci | grep "network device"` and you could get something like
+```
+[root@xxx ~]# lspci | grep "network device"
+5d:00.0 Ethernet controller: Red Hat, Inc. Virtio network device
+5e:00.0 Ethernet controller: Red Hat, Inc. Virtio network device
+```
+`5d:00.0` is the bus_slot_func.
+
+As an alternative way to insert a host device, you can use upcall to hotplug / hot-unplug a pci device into Dragonball while Dragonball is running, for more details please go to advanced usage part of this document.
+
 ## Advanced Usage
 
 ### Create API Server and Update VM
@@ -151,6 +175,23 @@ Create hot-plug virtio-blk devices via API Server:
 sudo ./dbs-cli  \
   --api-sock-path [socket path] update \
   --hotplug-virblks '[{"drive_id":"testblk","device_type":"RawBlock","path_on_host":"/path/to/test.img","is_root_device":false,"is_read_only":false,"is_direct":false,"no_drop":false,"num_queues":1,"queue_size":1024}]' \
+```
+
+Hotplug a pci device into Dragonball
+```
+./dbs-cli --api-sock-path $API_SOCK_PATH update --bus-slot-func $BUS_SLOT_FUNC --hostdev-id $HOST_DEVICE_ID
+```
+
+Prepare hot-unplug a pci device into Dragonball (must do before hotunplug)
+
+```
+./dbs-cli --api-sock-path ./sock update --prepare-remove-host-device $HOST_DEVICE_ID
+```
+
+Hot-unplug a pci device into Dragonball
+
+```
+./dbs-cli --api-sock-path ./sock update --remove-host-device $HOST_DEVICE_ID
 ```
 
 TODO : add document for hot-plug virtio-fs

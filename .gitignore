@@ -11,3 +11,7 @@
 
 # log files
 **/*.log
+
+.idea*
+
+.vscode*

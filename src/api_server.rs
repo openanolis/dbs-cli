@@ -12,6 +12,7 @@ use crossbeam_channel::{Receiver, Sender};
 use dragonball::api::v1::{NetworkInterfaceConfig, VmmRequest, VmmResponse};
 use dragonball::device_manager::blk_dev_mgr::BlockDeviceConfigInfo;
 use dragonball::device_manager::fs_dev_mgr::FsMountConfigInfo;
+use dragonball::device_manager::vfio_dev_mgr::{HostDeviceConfig, VfioPciDeviceConfig};
 use dragonball::vcpu::VcpuResizeInfo;
 use serde_json::Value;
 use vmm_sys_util::eventfd::EventFd;
@@ -79,6 +80,31 @@ impl ApiServer {
                     vcpu_count: v["vcpu_count"].as_u64().map(|count| count as u8),
                 };
                 return self.resize_vcpu(resize_vcpu_cfg);
+            }
+            Some("insert_host_device") => {
+                // TODO: add customize support for sysfs_path, vendor_device_id, guest_dev_id and clique_id.
+                // ignore them now since they are not the must parameters for hotplugging a host device.
+                // issue: #31
+                let host_device_config = HostDeviceConfig {
+                    hostdev_id: v["hostdev-id"].as_str().unwrap().to_owned(),
+                    sysfs_path: "".to_string(),
+                    dev_config: VfioPciDeviceConfig {
+                        bus_slot_func: v["bus-slot-func"].as_str().unwrap().to_owned(),
+                        vendor_device_id: 0,
+                        guest_dev_id: None,
+                        clique_id: None,
+                    },
+                };
+                self.insert_host_device(host_device_config)
+                    .expect("Failed to insert a host device");
+            }
+            Some("prepare_remove_host_device") => {
+                self.prepare_remove_host_device(v["hostdev-id"].as_str().unwrap().to_owned())
+                    .expect("Failed to insert a host device");
+            }
+            Some("remove_host_device") => {
+                self.remove_host_device(v["hostdev-id"].as_str().unwrap().to_owned())
+                    .expect("Failed to insert a host device");
             }
             Some("insert_virnets") => {
                 let config_json = match v["config"].as_str() {

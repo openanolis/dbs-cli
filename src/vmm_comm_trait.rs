@@ -7,6 +7,7 @@ use dragonball::api::v1::{
     VmmData, VmmRequest, VmmResponse, VsockDeviceConfigInfo,
 };
 use dragonball::device_manager::fs_dev_mgr::{FsDeviceConfigInfo, FsMountConfigInfo};
+use dragonball::device_manager::vfio_dev_mgr::HostDeviceConfig;
 use dragonball::vcpu::VcpuResizeInfo;
 use dragonball::vm::VmConfigInfo;
 use vmm_sys_util::eventfd::EventFd;
@@ -166,6 +167,33 @@ pub trait VMMComm {
                     cfg.ops, cfg.fstype, cfg.mountpoint, cfg
                 )
             })?;
+        Ok(())
+    }
+
+    fn insert_host_device(&self, host_device_cfg: HostDeviceConfig) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::InsertHostDevice(host_device_cfg.clone())))
+            .with_context(|| {
+                format!(
+                    "Failed to insert host device hostdev_id {:?}, sysfs_path {:?}, host_device_cfg {:?}",
+                    host_device_cfg.hostdev_id, host_device_cfg.sysfs_path, host_device_cfg.dev_config
+                )
+            })?;
+        Ok(())
+    }
+
+    fn prepare_remove_host_device(&self, hostdev_id: String) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::PrepareRemoveHostDevice(
+            hostdev_id.clone(),
+        )))
+        .with_context(|| format!("Failed to prepare remove host device {:?}", hostdev_id))?;
+        Ok(())
+    }
+
+    fn remove_host_device(&self, hostdev_id: String) -> Result<()> {
+        self.handle_request(Request::Sync(VmmAction::RemoveHostDevice(
+            hostdev_id.clone(),
+        )))
+        .with_context(|| format!("Failed to remove host device {:?}", hostdev_id))?;
         Ok(())
     }
 }
